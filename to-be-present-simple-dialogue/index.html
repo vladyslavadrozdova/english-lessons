@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Interactive dialogue practice: forms of to be and the Present Simple." />
+  <title>To Be + Present Simple — Interactive Dialogue</title>
+  <style>
+    :root {
+      --blue: #1596c6;
+      --blue-dark: #0878a5;
+      --blue-soft: #eaf7fc;
+      --ink: #16191d;
+      --muted: #66717f;
+      --line: #cbd5e1;
+      --surface: #ffffff;
+      --page: #f4f8fb;
+      --green: #17845f;
+      --green-soft: #eaf8f2;
+      --red: #c43b4d;
+      --red-soft: #fff0f2;
+      --shadow: 0 18px 55px rgba(24, 53, 73, 0.11);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 10% 0%, rgba(21, 150, 198, 0.10), transparent 34rem),
+        var(--page);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    .page {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 46px 0 64px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 22px;
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--blue-dark);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(31px, 4.2vw, 52px);
+      line-height: 1.06;
+      letter-spacing: -0.045em;
+    }
+
+    .instruction {
+      max-width: 750px;
+      margin: 13px 0 0;
+      color: var(--muted);
+      font-size: clamp(16px, 1.7vw, 19px);
+      line-height: 1.55;
+    }
+
+    .score-card {
+      flex: 0 0 auto;
+      min-width: 118px;
+      padding: 12px 16px;
+      border: 1px solid rgba(21, 150, 198, 0.24);
+      border-radius: 17px;
+      background: rgba(255, 255, 255, 0.76);
+      text-align: center;
+      box-shadow: 0 8px 24px rgba(24, 53, 73, 0.06);
+      backdrop-filter: blur(10px);
+    }
+
+    .score-label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 750;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .score-value {
+      display: block;
+      margin-top: 3px;
+      color: var(--blue-dark);
+      font-size: 24px;
+      font-weight: 850;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .exercise {
+      overflow: hidden;
+      border: 1px solid rgba(150, 167, 183, 0.25);
+      border-radius: 28px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .exercise-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px 24px;
+      border-bottom: 1px solid #e6edf3;
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      padding: 6px 11px;
+      border-radius: 999px;
+      background: var(--blue-soft);
+      color: var(--blue-dark);
+      font-size: 13px;
+      font-weight: 750;
+    }
+
+    .help-toggle {
+      appearance: none;
+      border: 0;
+      border-radius: 10px;
+      background: transparent;
+      color: var(--blue-dark);
+      cursor: pointer;
+      padding: 8px 10px;
+      font-size: 14px;
+      font-weight: 750;
+    }
+
+    .help-toggle:hover {
+      background: var(--blue-soft);
+    }
+
+    .help-toggle:focus-visible,
+    .button:focus-visible,
+    .gap-input:focus-visible {
+      outline: 3px solid rgba(21, 150, 198, 0.26);
+      outline-offset: 3px;
+    }
+
+    .grammar-help {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      max-height: 0;
+      overflow: hidden;
+      padding: 0 24px;
+      background: #f8fcfe;
+      opacity: 0;
+      transition: max-height 220ms ease, padding 220ms ease, opacity 180ms ease;
+    }
+
+    .grammar-help.open {
+      max-height: 220px;
+      padding: 18px 24px;
+      border-bottom: 1px solid #e6edf3;
+      opacity: 1;
+    }
+
+    .help-item {
+      padding: 13px 14px;
+      border: 1px solid #dbe7ef;
+      border-radius: 14px;
+      background: #fff;
+      color: #394554;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .help-item strong {
+      color: var(--ink);
+    }
+
+    .dialogue {
+      padding: clamp(26px, 4.5vw, 58px) clamp(20px, 5vw, 64px) 22px;
+    }
+
+    .turn {
+      margin: 0 0 clamp(17px, 2.2vw, 28px);
+      font-size: clamp(20px, 2.25vw, 29px);
+      line-height: 2.05;
+      letter-spacing: -0.018em;
+    }
+
+    .speaker {
+      font-weight: 790;
+      letter-spacing: -0.025em;
+    }
+
+    .gap {
+      display: inline-flex;
+      position: relative;
+      align-items: center;
+      isolation: isolate;
+      margin: 0 0.12em 0 0.28em;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+
+    .gap-number {
+      display: inline-grid;
+      place-items: center;
+      z-index: 2;
+      width: 1.78em;
+      height: 1.78em;
+      margin-right: 0.22em;
+      border-radius: 50%;
+      background: var(--blue);
+      color: #fff;
+      font-size: 0.72em;
+      font-weight: 850;
+      line-height: 1;
+      box-shadow: 0 4px 12px rgba(21, 150, 198, 0.19);
+      transition: background 160ms ease, transform 160ms ease;
+    }
+
+    .gap-input {
+      width: var(--input-width, 4.65em);
+      min-width: 92px;
+      height: 1.72em;
+      border: 2px solid var(--line);
+      border-radius: 0.48em;
+      background: #fff;
+      color: var(--ink);
+      padding: 0.13em 0.55em;
+      text-align: center;
+      font-size: 0.84em;
+      font-weight: 650;
+      line-height: 1;
+      transition: border-color 150ms ease, background 150ms ease, box-shadow 150ms ease;
+    }
+
+    .gap-input:hover {
+      border-color: #9fb0bf;
+    }
+
+    .gap-input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 4px rgba(21, 150, 198, 0.09);
+    }
+
+    .gap.correct .gap-input {
+      border-color: var(--green);
+      background: var(--green-soft);
+      box-shadow: 0 0 0 3px rgba(23, 132, 95, 0.07);
+    }
+
+    .gap.correct .gap-number {
+      background: var(--green);
+    }
+
+    .gap.wrong .gap-input {
+      border-color: var(--red);
+      background: var(--red-soft);
+      box-shadow: 0 0 0 3px rgba(196, 59, 77, 0.07);
+    }
+
+    .gap.wrong .gap-number {
+      background: var(--red);
+      animation: nudge 230ms ease;
+    }
+
+    @keyframes nudge {
+      0%, 100% { transform: translateX(0); }
+      35% { transform: translateX(-3px); }
+      70% { transform: translateX(3px); }
+    }
+
+    .feedback {
+      display: none;
+      margin: 2px clamp(20px, 5vw, 64px) 24px;
+      padding: 16px 18px;
+      border-radius: 16px;
+      font-size: 15px;
+      line-height: 1.55;
+    }
+
+    .feedback.visible {
+      display: block;
+    }
+
+    .feedback.neutral {
+      border: 1px solid #d9e4ec;
+      background: #f7fafc;
+      color: #43515f;
+    }
+
+    .feedback.good {
+      border: 1px solid rgba(23, 132, 95, 0.26);
+      background: var(--green-soft);
+      color: #115f46;
+    }
+
+    .feedback.review {
+      border: 1px solid rgba(196, 59, 77, 0.22);
+      background: var(--red-soft);
+      color: #7f2531;
+    }
+
+    .feedback strong {
+      font-weight: 820;
+    }
+
+    .answer-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 10px;
+    }
+
+    .answer-chip {
+      display: inline-flex;
+      gap: 5px;
+      align-items: center;
+      min-height: 30px;
+      padding: 5px 9px;
+      border: 1px solid rgba(196, 59, 77, 0.16);
+      border-radius: 9px;
+      background: rgba(255, 255, 255, 0.72);
+      color: #70202c;
+      font-size: 13px;
+      font-weight: 720;
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 18px 24px 22px;
+      border-top: 1px solid #e6edf3;
+      background: #fbfdff;
+    }
+
+    .action-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .button {
+      appearance: none;
+      min-height: 46px;
+      border: 1px solid transparent;
+      border-radius: 13px;
+      cursor: pointer;
+      padding: 11px 17px;
+      font-weight: 790;
+      transition: transform 140ms ease, background 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
+    }
+
+    .button:hover {
+      transform: translateY(-1px);
+    }
+
+    .button:active {
+      transform: translateY(0);
+    }
+
+    .button-primary {
+      background: var(--blue);
+      color: #fff;
+      box-shadow: 0 8px 20px rgba(21, 150, 198, 0.20);
+    }
+
+    .button-primary:hover {
+      background: var(--blue-dark);
+    }
+
+    .button-secondary {
+      border-color: #cfdae3;
+      background: #fff;
+      color: #334150;
+    }
+
+    .button-secondary:hover {
+      border-color: #aebcc9;
+      background: #f7fafc;
+    }
+
+    .button-quiet {
+      background: transparent;
+      color: var(--blue-dark);
+    }
+
+    .button-quiet:hover {
+      background: var(--blue-soft);
+    }
+
+    .keyboard-note {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.4;
+      text-align: right;
+    }
+
+    kbd {
+      border: 1px solid #cbd5df;
+      border-bottom-width: 2px;
+      border-radius: 5px;
+      background: #fff;
+      padding: 1px 5px;
+      color: #44515e;
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 750;
+    }
+
+    @media (max-width: 760px) {
+      .page {
+        width: min(100% - 20px, 680px);
+        padding: 24px 0 34px;
+      }
+
+      .topbar {
+        align-items: flex-start;
+      }
+
+      .score-card {
+        min-width: 96px;
+        padding: 10px 12px;
+      }
+
+      .score-value {
+        font-size: 21px;
+      }
+
+      .exercise {
+        border-radius: 21px;
+      }
+
+      .exercise-head {
+        align-items: flex-start;
+        padding: 15px 16px;
+      }
+
+      .grammar-help,
+      .grammar-help.open {
+        grid-template-columns: 1fr;
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+
+      .grammar-help.open {
+        max-height: 360px;
+      }
+
+      .dialogue {
+        padding: 24px 16px 10px;
+      }
+
+      .turn {
+        font-size: clamp(18px, 5vw, 23px);
+        line-height: 2.15;
+      }
+
+      .gap {
+        margin-left: 0.16em;
+      }
+
+      .gap-input {
+        min-width: 82px;
+      }
+
+      .feedback {
+        margin-right: 16px;
+        margin-left: 16px;
+      }
+
+      .actions {
+        align-items: stretch;
+        flex-direction: column;
+        padding: 16px;
+      }
+
+      .action-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .button-primary {
+        grid-column: 1 / -1;
+      }
+
+      .keyboard-note {
+        text-align: left;
+      }
+    }
+
+    @media (max-width: 460px) {
+      .topbar {
+        display: block;
+      }
+
+      .score-card {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 16px;
+        text-align: left;
+      }
+
+      .score-value {
+        margin-top: 0;
+      }
+
+      .exercise-head {
+        display: block;
+      }
+
+      .help-toggle {
+        margin-top: 7px;
+        padding-left: 0;
+      }
+
+      .action-group {
+        grid-template-columns: 1fr;
+      }
+
+      .button-primary {
+        grid-column: auto;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Grammar practice</p>
+        <h1>To be + Present Simple</h1>
+        <p class="instruction">
+          Complete the dialogue. Type one correct form in every gap. Use forms of <strong>to be</strong>,
+          auxiliaries, or the correct Present Simple verb.
+        </p>
+      </div>
+      <div class="score-card" aria-live="polite">
+        <span class="score-label">Score</span>
+        <span class="score-value" id="scoreValue">0 / 24</span>
+      </div>
+    </header>
+
+    <section class="exercise" aria-label="Interactive grammar dialogue">
+      <div class="exercise-head">
+        <div class="tags" aria-label="Grammar topics">
+          <span class="tag">am · is · are</span>
+          <span class="tag">do · does</span>
+          <span class="tag">Present Simple verbs</span>
+        </div>
+        <button class="help-toggle" id="helpToggle" type="button" aria-expanded="false" aria-controls="grammarHelp">
+          Grammar help
+        </button>
+      </div>
+
+      <div class="grammar-help" id="grammarHelp">
+        <div class="help-item">
+          <strong>To be:</strong> use <em>am / is / are</em> for identity, origin, age, state, and description.
+        </div>
+        <div class="help-item">
+          <strong>Present Simple:</strong> use <em>do / does</em> in questions and add <em>-s / -es</em> with he, she, or it.
+        </div>
+      </div>
+
+      <form id="exerciseForm" novalidate>
+        <div class="dialogue" id="dialogue">
+          <p class="turn"><span class="speaker">LENA:</span> Hi!
+            <label class="gap" data-gap="1"><span class="gap-number">1</span><input class="gap-input" style="--input-width:4.3em" aria-label="Gap 1" autocomplete="off" autocapitalize="none" spellcheck="false" /></label>
+            you new here?
+          </p>
+
+          <p class="turn"><span class="speaker">MAX:</span> Yes, I
+            <label class="gap" data-gap="2"><span class="gap-number">2</span><input class="gap-input" style="--input-width:4.1em" aria-label="Gap 2" autocomplete="off" autocapitalize="none" spellcheck="false" /></label>.
+            My name
+            <label class="gap" data-gap="3"><span class="gap-number">3</span><input class="gap-input" style="--input-width:4.1em" aria-label="Gap 3" autocomplete="off" autocapitalize="none" spellcheck="false" /></label>
+            Max.
+          </p>
+
+          <p class="turn"><span class="speaker">LENA:</span> Nice to meet you, Max. Where
+            <label class="gap" data-gap="4"><span class="gap-number">4</span><input class="gap-input" style="--input-width:4.2em" aria-label="Gap 4" autocomplete="off" autocapitalize="none" spellcheck="false" /></label>
+            you from?
+          </p>
+
+          <p class="turn"><span class="speaker">MAX:</span> I
+            <label class="gap" data-gap="5"><span class="gap-number">5</span><input class="gap-input" style="--input-width:4.1em" aria-label="Gap 5" autocomplete="off" autocapitalize="none" spellcheck="false" /></label>
+            from Germany, but I
+            <label class="gap" data-gap="6"><span class="gap-number">6</span><input class="gap-input" style="--input-width:4.7em" aria-label="Gap 6" autocomplete="off" autocapitalize="none" spellcheck="false" /></label>
+            in Manchester now.
+          </p>
+
+          <p class="turn"><span class="speaker">LENA:</span>
+            <label class="gap" data-gap="7"><span class="gap-number">7</span><input class="gap-input" style="--input-width:4.1em" aria-label="Gap 7" autocomplete="off" autocapitalize="none" spellcheck="false" /></label>
+            you study at this college?
+          </p>
+
+          <p class="turn"><span class="speaker">MAX:</span> Yes, I
+            <label class="gap" data-gap="8"><span class="gap-number">8</span><input class="gap-input" style="--input-width:4.1em" aria-label="Gap 8" autocomplete="off" autocapitalize="none" spellcheck="false" /></label>.
+            I
+            <label class="gap" data-gap="9"><span class="gap-number">9</span><input class="gap-input" style="--input-width:5.1em" aria-label="Gap 9" autocomplete="off" autocapitalize="none" spellcheck="false" /></label>
+            graphic design.
+          </p>
+
+          <p class="turn"><span class="speaker">LENA:</span>
+            <label class="gap" data-gap="10"><span class="gap-number">10</span><input class="gap-input" style="--input-width:4.1em" aria-label="Gap 10" autocomplete="off" autocapitalize="none" spellcheck="false" /></label>
+            you like it?
+          </p>
+
+          <p class="turn"><span class="speaker">MAX:</span> Yes, I
+            <label class="gap" data-gap="11"><span class="gap-number">11</span><input class="gap-input" style="--input-width:4.1em" aria-label="Gap 11" autocomplete="off" autocapitalize="none" spellcheck="false" /></label>.
+            The classes
+            <label class="gap" data-gap="12"><span class="gap-number">12</span><input class="gap-input" style="--input-width:4.3em" aria-label="Gap 12" autocomplete="off" autocapitalize="none" spellcheck="false" /></label>
+            very practical.
+          </p>
+
+          <p class="turn"><span class="speaker">LENA:</span> What
+            <label class="gap" data-gap="13"><span class="gap-number">13</span><input class="gap-input" style="--input-width:4.1em" aria-label="Gap 13" autocomplete="off" autocapitalize="none" spellcheck="false" /></label>
+            your parents do?
+          </p>
+
+          <p class="turn"><span class="speaker">MAX:</span> My mother
+            <label class="gap" data-gap="14"><span class="gap-number">14</span><input class="gap-input" style="--input-width:4.1em" aria-label="Gap 14" autocomplete="off" autocapitalize="none" spellcheck="false" /></label>
+            a teacher, and my father
+            <label class="gap" data-gap="15"><span class="gap-number">15</span><input class="gap-input" style="--input-width:5.4em" aria-label="Gap 15" autocomplete="off" autocapitalize="none" spellcheck="false" /></label>
+            for a software company.
+          </p>
+
+          <p class="turn"><span class="speaker">LENA:</span>
+            <label class="gap" data-gap="16"><span class="gap-number">16</span><input class="gap-input" style="--input-width:4.1em" aria-label="Gap 16" autocomplete="off" autocapitalize="none" spellcheck="false" /></label>
+            they live in Manchester too?
+          </p>
+
+          <p class="turn"><span class="speaker">MAX:</span> No, they
+            <label class="gap" data-gap="17"><span class="gap-number">17</span><input class="gap-input" style="--input-width:5.6em" aria-label="Gap 17" autocomplete="off" autocapitalize="none" spellcheck="false" /></label>.
+            They
+            <label class="gap" data-gap="18"><span class="gap-number">18</span><input class="gap-input" style="--input-width:4.7em" aria-label="Gap 18" autocomplete="off" autocapitalize="none" spellcheck="false" /></label>
+            in Berlin.
+          </p>
+
+          <p class="turn"><span class="speaker">LENA:</span>
+            <label class="gap" data-gap="19"><span class="gap-number">19</span><input class="gap-input" style="--input-width:5.2em" aria-label="Gap 19" autocomplete="off" autocapitalize="none" spellcheck="false" /></label>
+            your sister live in Berlin too?
+          </p>
+
+          <p class="turn"><span class="speaker">MAX:</span> No, she
+            <label class="gap" data-gap="20"><span class="gap-number">20</span><input class="gap-input" style="--input-width:6.1em" aria-label="Gap 20" autocomplete="off" autocapitalize="none" spellcheck="false" /></label>.
+            She
+            <label class="gap" data-gap="21"><span class="gap-number">21</span><input class="gap-input" style="--input-width:5.8em" aria-label="Gap 21" autocomplete="off" autocapitalize="none" spellcheck="false" /></label>
+            at a university in Hamburg.
+          </p>
+
+          <p class="turn"><span class="speaker">LENA:</span>
+            <label class="gap" data-gap="22"><span class="gap-number">22</span><input class="gap-input" style="--input-width:4.3em" aria-label="Gap 22" autocomplete="off" autocapitalize="none" spellcheck="false" /></label>
+            you free after class today?
+          </p>
+
+          <p class="turn"><span class="speaker">MAX:</span> No, I
+            <label class="gap" data-gap="23"><span class="gap-number">23</span><input class="gap-input" style="--input-width:6.1em" aria-label="Gap 23" autocomplete="off" autocapitalize="none" spellcheck="false" /></label>.
+            I usually
+            <label class="gap" data-gap="24"><span class="gap-number">24</span><input class="gap-input" style="--input-width:4.1em" aria-label="Gap 24" autocomplete="off" autocapitalize="none" spellcheck="false" /></label>
+            my homework at the library.
+          </p>
+        </div>
+
+        <div class="feedback neutral" id="feedback" role="status" aria-live="polite"></div>
+
+        <div class="actions">
+          <div class="action-group">
+            <button class="button button-primary" type="submit">Check answers</button>
+            <button class="button button-secondary" id="resetButton" type="button">Try again</button>
+            <button class="button button-quiet" id="showButton" type="button">Show answers</button>
+          </div>
+          <div class="keyboard-note"><kbd>Enter</kbd> next gap · <kbd>Ctrl</kbd> + <kbd>Enter</kbd> check</div>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      const answers = {
+        1: ["are"],
+        2: ["am"],
+        3: ["is"],
+        4: ["are"],
+        5: ["am"],
+        6: ["live"],
+        7: ["do"],
+        8: ["do"],
+        9: ["study"],
+        10: ["do"],
+        11: ["do"],
+        12: ["are"],
+        13: ["do"],
+        14: ["is"],
+        15: ["works"],
+        16: ["do"],
+        17: ["don't", "do not"],
+        18: ["live"],
+        19: ["does"],
+        20: ["doesn't", "does not"],
+        21: ["studies"],
+        22: ["are"],
+        23: ["am not", "'m not"],
+        24: ["do"]
+      };
+
+      const preferred = {
+        1: "are", 2: "am", 3: "is", 4: "are", 5: "am", 6: "live",
+        7: "do", 8: "do", 9: "study", 10: "do", 11: "do", 12: "are",
+        13: "do", 14: "is", 15: "works", 16: "do", 17: "don't", 18: "live",
+        19: "does", 20: "doesn't", 21: "studies", 22: "are", 23: "am not", 24: "do"
+      };
+
+      const storageKey = "dialogue-to-be-present-simple-v1";
+      const form = document.getElementById("exerciseForm");
+      const gaps = [...document.querySelectorAll(".gap")];
+      const inputs = gaps.map(gap => gap.querySelector("input"));
+      const feedback = document.getElementById("feedback");
+      const scoreValue = document.getElementById("scoreValue");
+      const resetButton = document.getElementById("resetButton");
+      const showButton = document.getElementById("showButton");
+      const helpToggle = document.getElementById("helpToggle");
+      const grammarHelp = document.getElementById("grammarHelp");
+
+      const normalize = value => value
+        .trim()
+        .toLowerCase()
+        .replace(/[’‘`]/g, "'")
+        .replace(/\s+/g, " ")
+        .replace(/[.!?]+$/g, "");
+
+      const saveProgress = () => {
+        try {
+          const values = inputs.map(input => input.value);
+          localStorage.setItem(storageKey, JSON.stringify(values));
+        } catch (_) {}
+      };
+
+      const restoreProgress = () => {
+        try {
+          const saved = JSON.parse(localStorage.getItem(storageKey));
+          if (!Array.isArray(saved)) return;
+          inputs.forEach((input, index) => {
+            if (typeof saved[index] === "string") input.value = saved[index];
+          });
+        } catch (_) {}
+      };
+
+      const clearState = gap => {
+        gap.classList.remove("correct", "wrong");
+      };
+
+      const setFeedback = (type, html) => {
+        feedback.className = `feedback visible ${type}`;
+        feedback.innerHTML = html;
+      };
+
+      const hideFeedback = () => {
+        feedback.className = "feedback neutral";
+        feedback.innerHTML = "";
+      };
+
+      const evaluate = ({ revealCorrections = true } = {}) => {
+        let correctCount = 0;
+        const wrong = [];
+
+        gaps.forEach(gap => {
+          const number = Number(gap.dataset.gap);
+          const input = gap.querySelector("input");
+          const value = normalize(input.value);
+          const isCorrect = answers[number].some(answer => normalize(answer) === value);
+
+          gap.classList.toggle("correct", isCorrect);
+          gap.classList.toggle("wrong", !isCorrect);
+
+          if (isCorrect) {
+            correctCount += 1;
+          } else {
+            wrong.push(number);
+          }
+        });
+
+        scoreValue.textContent = `${correctCount} / ${gaps.length}`;
+
+        if (correctCount === gaps.length) {
+          setFeedback("good", `<strong>All answers are correct.</strong> Score: ${correctCount}/${gaps.length}.`);
+        } else if (revealCorrections) {
+          const chips = wrong
+            .map(number => `<span class="answer-chip"><span>${number}</span><span>→</span><span>${preferred[number]}</span></span>`)
+            .join("");
+          setFeedback(
+            "review",
+            `<strong>${correctCount}/${gaps.length} correct.</strong> Review the highlighted gaps.<div class="answer-list">${chips}</div>`
+          );
+        } else {
+          setFeedback("neutral", `<strong>${correctCount}/${gaps.length} correct.</strong> Review the highlighted gaps and check again.`);
+        }
+
+        const firstWrong = gaps.find(gap => gap.classList.contains("wrong"));
+        if (firstWrong) {
+          firstWrong.querySelector("input").focus({ preventScroll: true });
+          firstWrong.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      };
+
+      form.addEventListener("submit", event => {
+        event.preventDefault();
+        evaluate({ revealCorrections: true });
+      });
+
+      inputs.forEach((input, index) => {
+        input.addEventListener("input", () => {
+          clearState(gaps[index]);
+          saveProgress();
+          hideFeedback();
+        });
+
+        input.addEventListener("keydown", event => {
+          if (event.key === "Enter" && !event.ctrlKey && !event.metaKey) {
+            event.preventDefault();
+            const next = inputs[index + 1];
+            if (next) next.focus();
+            else evaluate({ revealCorrections: true });
+          }
+
+          if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
+            event.preventDefault();
+            evaluate({ revealCorrections: true });
+          }
+        });
+      });
+
+      resetButton.addEventListener("click", () => {
+        inputs.forEach(input => { input.value = ""; });
+        gaps.forEach(clearState);
+        scoreValue.textContent = `0 / ${gaps.length}`;
+        hideFeedback();
+        try { localStorage.removeItem(storageKey); } catch (_) {}
+        inputs[0].focus();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+
+      showButton.addEventListener("click", () => {
+        gaps.forEach(gap => {
+          const number = Number(gap.dataset.gap);
+          gap.querySelector("input").value = preferred[number];
+          gap.classList.remove("wrong");
+          gap.classList.add("correct");
+        });
+        scoreValue.textContent = `${gaps.length} / ${gaps.length}`;
+        setFeedback("good", "<strong>Answers are shown.</strong> Use “Try again” to restart the exercise.");
+        saveProgress();
+      });
+
+      helpToggle.addEventListener("click", () => {
+        const isOpen = grammarHelp.classList.toggle("open");
+        helpToggle.setAttribute("aria-expanded", String(isOpen));
+        helpToggle.textContent = isOpen ? "Hide grammar help" : "Grammar help";
+      });
+
+      restoreProgress();
+    })();
+  </script>
+</body>
+</html>
