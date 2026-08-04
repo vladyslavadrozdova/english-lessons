@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cooking Vocabulary — Interactive Practice</title>
+<style>
+  :root{
+    --bg:#FBF9F3;
+    --panel:#FFFFFF;
+    --ink:#2A2620;
+    --ink-soft:#6E675C;
+    --line:#E7E1D4;
+    --accent:#4C7A5B;        /* herb green */
+    --accent-soft:#EAF2EC;
+    --warm:#C4703A;          /* baked / crust */
+    --warm-soft:#FBEEE3;
+    --gold:#D8A24A;
+    --slot:#F3EFE5;
+    --ok:#3E7A55;
+    --ok-bg:#E7F1EA;
+    --err:#B4522F;
+    --err-bg:#FBE9E1;
+    --radius:14px;
+    --shadow:0 1px 2px rgba(42,38,32,.05), 0 8px 24px rgba(42,38,32,.06);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1040px;margin:0 auto;padding:48px 32px 96px;}
+
+  /* Header */
+  .masthead{margin-bottom:40px;}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--accent);font-weight:700;margin-bottom:12px;
+  }
+  .eyebrow::before{content:"";width:22px;height:2px;background:var(--accent);border-radius:2px;}
+  h1{
+    font-family:Georgia,"Times New Roman",serif;
+    font-size:40px;font-weight:600;margin:0 0 8px;letter-spacing:-.01em;
+  }
+  .lead{color:var(--ink-soft);font-size:16px;max-width:60ch;margin:0;}
+
+  /* Progress rail */
+  .rail{
+    display:flex;gap:10px;margin:28px 0 8px;flex-wrap:wrap;
+  }
+  .rail button{
+    border:1px solid var(--line);background:var(--panel);color:var(--ink-soft);
+    padding:8px 16px;border-radius:999px;font-size:14px;font-weight:600;
+    cursor:pointer;transition:all .18s ease;font-family:inherit;
+  }
+  .rail button:hover{border-color:var(--accent);color:var(--accent);}
+  .rail button.active{background:var(--ink);border-color:var(--ink);color:#fff;}
+
+  /* Section */
+  .section{
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:32px;margin-top:24px;box-shadow:var(--shadow);display:none;
+  }
+  .section.show{display:block;animation:rise .3s ease;}
+  @keyframes rise{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+  .section-head{display:flex;align-items:baseline;gap:14px;margin-bottom:6px;}
+  .num{
+    font-family:Georgia,serif;font-size:15px;color:var(--warm);font-weight:700;
+    border:1.5px solid var(--warm);border-radius:8px;padding:2px 9px;line-height:1;
+  }
+  h2{font-family:Georgia,serif;font-size:24px;margin:0;font-weight:600;}
+  .hint{color:var(--ink-soft);font-size:14px;margin:6px 0 24px;}
+
+  /* ===== Exercise 1: match verb -> definition ===== */
+  .match-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 32px;}
+  .col-title{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);font-weight:700;margin-bottom:8px;}
+  .bank{display:flex;flex-wrap:wrap;gap:10px;align-content:flex-start;min-height:44px;
+    background:var(--slot);border:1px dashed var(--line);border-radius:12px;padding:12px;}
+  .chip{
+    background:var(--accent-soft);color:var(--accent);border:1px solid #cfe1d4;
+    padding:8px 14px;border-radius:999px;font-weight:600;font-size:15px;cursor:grab;
+    user-select:none;transition:transform .12s ease, box-shadow .12s ease;white-space:nowrap;
+  }
+  .chip:active{cursor:grabbing;}
+  .chip.dragging{opacity:.4;}
+  .defs{display:flex;flex-direction:column;gap:12px;}
+  .def-row{display:flex;align-items:center;gap:14px;}
+  .def-text{flex:1;font-size:15px;color:var(--ink);}
+  .drop{
+    min-width:150px;min-height:44px;border-radius:10px;border:1.5px dashed #cbbfa8;
+    background:var(--slot);display:flex;align-items:center;justify-content:center;
+    padding:6px;transition:all .15s ease;
+  }
+  .drop.over{border-color:var(--accent);background:var(--accent-soft);}
+  .drop.filled{border-style:solid;}
+  .drop.correct{border-color:var(--ok);background:var(--ok-bg);}
+  .drop.wrong{border-color:var(--err);background:var(--err-bg);}
+  .drop .chip{cursor:grab;}
+
+  /* ===== Exercise 2: categorize ===== */
+  .cat-lanes{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:8px;}
+  .lane{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--bg);}
+  .lane-head{padding:12px 16px;font-weight:700;font-size:14px;color:#fff;display:flex;align-items:center;gap:8px;}
+  .lane:nth-child(1) .lane-head{background:var(--accent);}
+  .lane:nth-child(2) .lane-head{background:var(--warm);}
+  .lane:nth-child(3) .lane-head{background:var(--gold);}
+  .lane-body{padding:14px;min-height:120px;display:flex;flex-direction:column;gap:10px;transition:background .15s ease;}
+  .lane-body.over{background:var(--accent-soft);}
+  .source-bank{margin-top:8px;}
+
+  /* ===== Exercise 3: fill your own ===== */
+  .own-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px 28px;}
+  .own-card{border:1px solid var(--line);border-radius:12px;padding:18px;background:var(--bg);}
+  .own-word{font-weight:700;font-size:17px;color:var(--ink);margin-bottom:2px;}
+  .own-word .tag{font-size:12px;color:var(--warm);font-weight:700;margin-left:8px;text-transform:uppercase;letter-spacing:.06em;}
+  .own-prompt{font-size:13px;color:var(--ink-soft);margin-bottom:10px;}
+  .own-card textarea{
+    width:100%;border:1px solid var(--line);border-radius:8px;padding:10px 12px;
+    font-family:inherit;font-size:15px;color:var(--ink);resize:vertical;min-height:52px;background:#fff;
+    transition:border-color .15s ease;
+  }
+  .own-card textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);}
+
+  /* Add-your-own bank */
+  .add-row{display:flex;gap:10px;margin-top:14px;}
+  .add-row input{
+    flex:1;border:1px solid var(--line);border-radius:999px;padding:9px 16px;
+    font-family:inherit;font-size:15px;background:#fff;
+  }
+  .add-row input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);}
+  .btn{
+    border:none;background:var(--ink);color:#fff;padding:9px 20px;border-radius:999px;
+    font-weight:600;font-size:14px;cursor:pointer;font-family:inherit;transition:opacity .15s ease;
+  }
+  .btn:hover{opacity:.88;}
+  .btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line);}
+  .btn.ghost:hover{border-color:var(--accent);color:var(--accent);opacity:1;}
+
+  /* Footer actions */
+  .actions{display:flex;gap:12px;margin-top:26px;align-items:center;flex-wrap:wrap;}
+  .score{margin-left:auto;font-weight:700;font-size:15px;color:var(--ink-soft);}
+  .score b{color:var(--ok);}
+
+  @media(max-width:820px){
+    .wrap{padding:32px 18px 72px;}
+    .match-grid,.own-grid{grid-template-columns:1fr;}
+    .cat-lanes{grid-template-columns:1fr;}
+    h1{font-size:30px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <span class="eyebrow">Beauty &amp; Brains · Vocabulary</span>
+    <h1>Cooking &amp; Café Vocabulary</h1>
+    <p class="lead">Three interactive tasks. Drag the words into place, sort them into groups, then write your own sentences. Everything works with a mouse on desktop.</p>
+  </header>
+
+  <nav class="rail">
+    <button class="active" data-go="s1">1 · Match verbs</button>
+    <button data-go="s2">2 · Sort words</button>
+    <button data-go="s3">3 · Your own examples</button>
+  </nav>
+
+  <!-- ============ SECTION 1 ============ -->
+  <section class="section show" id="s1">
+    <div class="section-head"><span class="num">01</span><h2>Match the verb to its meaning</h2></div>
+    <p class="hint">Drag a verb from the bank onto the box next to the correct definition. Drop it back in the bank to try again.</p>
+
+    <div class="match-grid">
+      <div>
+        <div class="col-title">Verbs</div>
+        <div class="bank" id="verbBank" data-role="bank"></div>
+      </div>
+      <div>
+        <div class="col-title">Meanings</div>
+        <div class="defs" id="verbDefs"></div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn" onclick="checkMatch()">Check answers</button>
+      <button class="btn ghost" onclick="resetMatch()">Reset</button>
+      <span class="score" id="matchScore"></span>
+    </div>
+  </section>
+
+  <!-- ============ SECTION 2 ============ -->
+  <section class="section" id="s2">
+    <div class="section-head"><span class="num">02</span><h2>Sort the words into groups</h2></div>
+    <p class="hint">Drag each word into the group it belongs to. Not sure? Move it back to the bank below.</p>
+
+    <div class="cat-lanes">
+      <div class="lane"><div class="lane-head">🌿 Food &amp; ingredients</div><div class="lane-body" data-cat="food"></div></div>
+      <div class="lane"><div class="lane-head">🥜 Nuts</div><div class="lane-body" data-cat="nuts"></div></div>
+      <div class="lane"><div class="lane-head">☕ Café / drinks</div><div class="lane-body" data-cat="cafe"></div></div>
+    </div>
+
+    <div class="col-title" style="margin-top:20px;">Word bank</div>
+    <div class="bank source-bank" id="catBank" data-cat="bank"></div>
+
+    <div class="actions">
+      <button class="btn" onclick="checkCats()">Check answers</button>
+      <button class="btn ghost" onclick="resetCats()">Reset</button>
+      <span class="score" id="catScore"></span>
+    </div>
+  </section>
+
+  <!-- ============ SECTION 3 ============ -->
+  <section class="section" id="s3">
+    <div class="section-head"><span class="num">03</span><h2>Write your own examples</h2></div>
+    <p class="hint">Use each word in your own sentence. Add extra words at the bottom if you want to practise more.</p>
+
+    <div class="own-grid" id="ownGrid"></div>
+
+    <div class="add-row">
+      <input id="newWord" type="text" placeholder="Add your own word or phrase…" onkeydown="if(event.key==='Enter')addWord()">
+      <button class="btn" onclick="addWord()">Add</button>
+    </div>
+
+    <div class="actions">
+      <button class="btn ghost" onclick="clearOwn()">Clear all sentences</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* ---------- Navigation ---------- */
+document.querySelectorAll('.rail button').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.rail button').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(x=>x.classList.remove('show'));
+    b.classList.add('active');
+    document.getElementById(b.dataset.go).classList.add('show');
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+});
+
+/* ---------- Shared drag helpers ---------- */
+let dragged=null;
+function makeChip(text,key){
+  const c=document.createElement('div');
+  c.className='chip';c.textContent=text;c.draggable=true;c.dataset.key=key;
+  c.addEventListener('dragstart',e=>{dragged=c;c.classList.add('dragging');});
+  c.addEventListener('dragend',()=>{c.classList.remove('dragging');dragged=null;});
+  return c;
+}
+function enableDrop(el,onDrop){
+  el.addEventListener('dragover',e=>{e.preventDefault();el.classList.add('over');});
+  el.addEventListener('dragleave',()=>el.classList.remove('over'));
+  el.addEventListener('drop',e=>{e.preventDefault();el.classList.remove('over');if(dragged)onDrop(dragged,el);});
+}
+
+/* ============ EXERCISE 1 DATA ============ */
+const verbs=[
+  {key:'boil',  word:'to boil',  def:'to heat liquid until it bubbles; to cook food in bubbling water'},
+  {key:'blend', word:'to blend', def:'to mix ingredients until smooth, usually in a machine'},
+  {key:'add',   word:'to add',   def:'to put one more thing into a mixture'},
+  {key:'wipe',  word:'to wipe',  def:'to clean a surface by rubbing it with a cloth'},
+  {key:'dip',   word:'to dip',   def:'to put something into a liquid for a short moment'},
+  {key:'chop',  word:'to chop',  def:'to cut food into small pieces with a knife'},
+];
+const verbBank=document.getElementById('verbBank');
+const verbDefs=document.getElementById('verbDefs');
+enableDrop(verbBank,(chip)=>verbBank.appendChild(chip));
+
+function buildMatch(){
+  verbBank.innerHTML='';verbDefs.innerHTML='';
+  [...verbs].sort(()=>Math.random()-.5).forEach(v=>verbBank.appendChild(makeChip(v.word,v.key)));
+  verbs.forEach(v=>{
+    const row=document.createElement('div');row.className='def-row';
+    const drop=document.createElement('div');drop.className='drop';drop.dataset.answer=v.key;
+    enableDrop(drop,(chip,slot)=>{
+      if(slot.firstChild)verbBank.appendChild(slot.firstChild);
+      slot.appendChild(chip);slot.classList.add('filled');slot.classList.remove('correct','wrong');
+    });
+    const txt=document.createElement('div');txt.className='def-text';txt.textContent=v.def;
+    row.appendChild(drop);row.appendChild(txt);verbDefs.appendChild(row);
+  });
+  document.getElementById('matchScore').textContent='';
+}
+function checkMatch(){
+  let ok=0;
+  document.querySelectorAll('#verbDefs .drop').forEach(d=>{
+    d.classList.remove('correct','wrong');
+    const chip=d.querySelector('.chip');
+    if(!chip)return;
+    if(chip.dataset.key===d.dataset.answer){d.classList.add('correct');ok++;}
+    else d.classList.add('wrong');
+  });
+  document.getElementById('matchScore').innerHTML=`<b>${ok}</b> / ${verbs.length} correct`;
+}
+function resetMatch(){buildMatch();}
+buildMatch();
+
+/* ============ EXERCISE 2 DATA ============ */
+const catWords=[
+  {word:'cabbage rolls',cat:'food'},
+  {word:'condensed milk',cat:'food'},
+  {word:'pork fat / Salo',cat:'food'},
+  {word:'whipped cream',cat:'food'},
+  {word:'powdered sugar',cat:'food'},
+  {word:'strawberries',cat:'food'},
+  {word:'French fries',cat:'food'},
+  {word:'almond',cat:'nuts'},
+  {word:'hazelnuts',cat:'nuts'},
+  {word:'walnut',cat:'nuts'},
+  {word:'chopped nuts',cat:'nuts'},
+  {word:'coffee to go',cat:'cafe'},
+  {word:'takeaway coffee',cat:'cafe'},
+];
+const catBank=document.getElementById('catBank');
+const lanes=document.querySelectorAll('#s2 .lane-body');
+function laneDrop(chip,el){el.appendChild(chip);}
+[catBank,...lanes].forEach(z=>{
+  z.addEventListener('dragover',e=>{e.preventDefault();z.classList.add('over');});
+  z.addEventListener('dragleave',()=>z.classList.remove('over'));
+  z.addEventListener('drop',e=>{e.preventDefault();z.classList.remove('over');if(dragged)z.appendChild(dragged);
+    dragged.classList.remove('correct','wrong');});
+});
+function buildCats(){
+  catBank.innerHTML='';lanes.forEach(l=>l.innerHTML='');
+  [...catWords].sort(()=>Math.random()-.5).forEach(w=>{
+    const c=makeChip(w.word,w.cat);catBank.appendChild(c);
+  });
+  document.getElementById('catScore').textContent='';
+}
+function checkCats(){
+  let ok=0,total=catWords.length;
+  lanes.forEach(l=>{
+    l.querySelectorAll('.chip').forEach(chip=>{
+      chip.classList.remove('correct','wrong');
+      if(chip.dataset.key===l.dataset.cat){chip.style.boxShadow='0 0 0 2px var(--ok)';ok++;}
+      else chip.style.boxShadow='0 0 0 2px var(--err)';
+    });
+  });
+  // chips still in bank count as unplaced (wrong)
+  document.getElementById('catScore').innerHTML=`<b>${ok}</b> / ${total} placed correctly`;
+}
+function resetCats(){
+  document.querySelectorAll('#s2 .chip').forEach(c=>c.style.boxShadow='');
+  buildCats();
+}
+buildCats();
+
+/* ============ EXERCISE 3 ============ */
+const ownWords=[
+  {word:'to boil',tag:'verb'},{word:'to blend',tag:'verb'},{word:'to add',tag:'verb'},
+  {word:'to wipe',tag:'verb'},{word:'to dip',tag:'verb'},{word:'to chop',tag:'verb'},
+  {word:'condensed milk',tag:'noun'},{word:'whipped cream',tag:'noun'},
+  {word:'powdered sugar',tag:'noun'},{word:'chopped nuts',tag:'noun'},
+  {word:'takeaway coffee',tag:'noun'},{word:'cabbage rolls',tag:'noun'},
+];
+const ownGrid=document.getElementById('ownGrid');
+function ownCard(w,tag){
+  const card=document.createElement('div');card.className='own-card';
+  card.innerHTML=`<div class="own-word">${w}<span class="tag">${tag||''}</span></div>
+    <div class="own-prompt">Write a sentence using “${w}”.</div>
+    <textarea placeholder="Type here…"></textarea>`;
+  return card;
+}
+ownWords.forEach(o=>ownGrid.appendChild(ownCard(o.word,o.tag)));
+function addWord(){
+  const inp=document.getElementById('newWord');
+  const v=inp.value.trim();if(!v)return;
+  const card=ownCard(v,'yours');ownGrid.appendChild(card);
+  inp.value='';card.scrollIntoView({behavior:'smooth',block:'center'});
+  card.querySelector('textarea').focus();
+}
+function clearOwn(){document.querySelectorAll('#ownGrid textarea').forEach(t=>t.value='');}
+</script>
+</body>
+</html>
