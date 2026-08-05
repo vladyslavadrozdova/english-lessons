@@ -178,7 +178,10 @@ async function gradeAnswer(answer) {
         "English contains the original and improved phrases. Ukrainian briefly explains why.",
         "Score coverage, grammar, vocabulary, naturalness, and overall performance from 0 to 100.",
         "Keep the summary under 50 words and return no more than 3 corrections and 3 missed points.",
-        "Use only timestamps present in the supplied transcript for missed points.",
+        "Missed points must contain only important ideas explicitly stated in the reference transcript that the learner failed to mention.",
+        "Never put grammar, vocabulary, fluency, sentence variety, missing-transcript notices, assessment limitations, or generic advice in missed_points.",
+        "Each missed point must be a concise learner-friendly statement of the omitted video idea, with the exact nearest timestamp from the supplied transcript.",
+        "For gibberish or unrelated answers, return an empty missed_points array because the UI will show a dedicated retry message.",
       ].join(" "),
       input: `Lesson: ${LESSON_CONTEXT.title} by ${LESSON_CONTEXT.speaker}\n\nReference transcript:\n${transcriptNote}\n\nLearner answer:\n${answer}`,
       text: {
@@ -219,8 +222,15 @@ async function gradeAnswer(answer) {
                   type: "object",
                   additionalProperties: false,
                   properties: {
-                    point: { type: "string" },
-                    start_seconds: { type: "integer", minimum: 0 },
+                    point: {
+                      type: "string",
+                      description: "A key idea explicitly present in the video transcript but missing from the learner's recap.",
+                    },
+                    start_seconds: {
+                      type: "integer",
+                      minimum: 0,
+                      description: "The exact nearest timestamp for this idea from the supplied transcript.",
+                    },
                     suggestion: { type: "string" },
                   },
                   required: ["point", "start_seconds", "suggestion"],
@@ -303,11 +313,21 @@ function getMockGrade() {
 function renderResults(result, answer) {
   submittedAnswer.textContent = answer;
   const corrections = result.corrections || [];
+  const answerWordCount = answer.split(/\s+/).filter(Boolean).length;
   const isInvalidAnswer = result.answer_status === "gibberish"
     || result.answer_status === "unrelated"
-    || result.overall <= 20;
-  renderCorrections(corrections, isInvalidAnswer);
-  renderMissedPoints(result.missed_points || [], isInvalidAnswer);
+    || result.overall <= 20
+    || answerWordCount < 5;
+
+  if (isInvalidAnswer) {
+    ["coverage", "grammar", "vocabulary", "naturalness", "overall"].forEach((key) => {
+      result[key] = Math.min(Number(result[key]) || 0, 10);
+    });
+    result.summary = "This answer does not address the video. Watch it again and write a meaningful recap in English.";
+  }
+
+  renderCorrections(isInvalidAnswer ? [] : corrections, isInvalidAnswer);
+  renderMissedPoints(isInvalidAnswer ? [] : (result.missed_points || []), isInvalidAnswer);
   renderScores(result);
 
   recapHeader.classList.add("is-hidden");
