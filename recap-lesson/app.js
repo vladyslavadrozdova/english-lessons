@@ -7,6 +7,16 @@ const LESSON_CONTEXT = {
   transcript: "",
 };
 
+const transcriptPromise = fetch("transcript.txt")
+  .then((response) => {
+    if (!response.ok) throw new Error("Could not load the lesson transcript.");
+    return response.text();
+  })
+  .then((transcript) => {
+    LESSON_CONTEXT.transcript = transcript.trim();
+    return LESSON_CONTEXT.transcript;
+  });
+
 const recapHeader = document.querySelector(".work-area_header");
 const recapForm = document.querySelector(".work-area_form");
 const recapField = document.querySelector("#recap");
@@ -143,9 +153,7 @@ async function gradeAnswer(answer) {
     throw new Error("OpenAI API key is not configured.");
   }
 
-  const transcriptNote = LESSON_CONTEXT.transcript
-    ? LESSON_CONTEXT.transcript
-    : "No timestamped transcript has been supplied yet. Treat the coverage score as provisional and do not invent missed timestamps.";
+  const transcriptNote = LESSON_CONTEXT.transcript || await transcriptPromise;
 
   const response = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
@@ -160,11 +168,17 @@ async function gradeAnswer(answer) {
       max_output_tokens: 700,
       instructions: [
         "You are a supportive English teacher grading a learner's video recap.",
+        "First determine whether the learner answer is meaningful and relevant to the supplied transcript.",
+        "Gibberish, random words, or text with no assessable learner content must receive 0-10 overall and 0-10 in every category.",
+        "A coherent but unrelated answer must receive at most 20 overall and at most 20 for coverage.",
+        "Do not award medium scores merely because grammar, vocabulary, or naturalness cannot be assessed.",
+        "Set answer_status to gibberish for meaningless/random input, unrelated for meaningful text that does not recap the video, and valid only for a genuine recap attempt.",
+        "For gibberish or unrelated answers, the summary must clearly say that the answer does not address the video and ask the learner to try again. Never praise it.",
         "Identify real grammar mistakes and phrases that are correct but could sound more natural.",
         "English contains the original and improved phrases. Ukrainian briefly explains why.",
         "Score coverage, grammar, vocabulary, naturalness, and overall performance from 0 to 100.",
         "Keep the summary under 50 words and return no more than 3 corrections and 3 missed points.",
-        "If no transcript is available, make coverage provisional and return no invented missed points or timestamps.",
+        "Use only timestamps present in the supplied transcript for missed points.",
       ].join(" "),
       input: `Lesson: ${LESSON_CONTEXT.title} by ${LESSON_CONTEXT.speaker}\n\nReference transcript:\n${transcriptNote}\n\nLearner answer:\n${answer}`,
       text: {
@@ -177,6 +191,7 @@ async function gradeAnswer(answer) {
             type: "object",
             additionalProperties: false,
             properties: {
+              answer_status: { type: "string", enum: ["valid", "unrelated", "gibberish"] },
               coverage: { type: "integer", minimum: 0, maximum: 100 },
               grammar: { type: "integer", minimum: 0, maximum: 100 },
               vocabulary: { type: "integer", minimum: 0, maximum: 100 },
@@ -213,6 +228,7 @@ async function gradeAnswer(answer) {
               },
             },
             required: [
+              "answer_status",
               "coverage",
               "grammar",
               "vocabulary",
@@ -287,8 +303,11 @@ function getMockGrade() {
 function renderResults(result, answer) {
   submittedAnswer.textContent = answer;
   const corrections = result.corrections || [];
-  renderCorrections(corrections);
-  renderMissedPoints(result.missed_points || []);
+  const isInvalidAnswer = result.answer_status === "gibberish"
+    || result.answer_status === "unrelated"
+    || result.overall <= 20;
+  renderCorrections(corrections, isInvalidAnswer);
+  renderMissedPoints(result.missed_points || [], isInvalidAnswer);
   renderScores(result);
 
   recapHeader.classList.add("is-hidden");
@@ -297,7 +316,7 @@ function renderResults(result, answer) {
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-function renderCorrections(corrections) {
+function renderCorrections(corrections, isInvalidAnswer = false) {
   correctionList.replaceChildren();
   let itemNumber = 0;
 
@@ -314,13 +333,15 @@ function renderCorrections(corrections) {
 
   if (!itemNumber) {
     const empty = document.createElement("p");
-    empty.className = "empty-feedback";
-    empty.textContent = "Great job — no important corrections were found.";
+    empty.className = `empty-feedback${isInvalidAnswer ? " empty-feedback-error" : ""}`;
+    empty.textContent = isInvalidAnswer
+      ? "There isn’t enough meaningful English to correct. Please write a real recap of the video."
+      : "Great job — no important corrections were found.";
     correctionList.append(empty);
   }
 }
 
-function renderMissedPoints(missedPoints) {
+function renderMissedPoints(missedPoints, isInvalidAnswer = false) {
   missedList.replaceChildren();
 
   missedPoints.forEach((point, index) => {
@@ -355,8 +376,10 @@ function renderMissedPoints(missedPoints) {
 
   if (!missedPoints.length) {
     const empty = document.createElement("p");
-    empty.className = "empty-feedback";
-    empty.textContent = "Great job — you covered all the important ideas.";
+    empty.className = `empty-feedback${isInvalidAnswer ? " empty-feedback-error" : ""}`;
+    empty.textContent = isInvalidAnswer
+      ? "Your answer does not mention the video’s key ideas. Watch the video and try again."
+      : "Great job — you covered all the important ideas.";
     missedList.append(empty);
   }
 }

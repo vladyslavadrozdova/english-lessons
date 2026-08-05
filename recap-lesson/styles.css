@@ -357,6 +357,11 @@ body {
   font-weight: 700;
 }
 
+.empty-feedback-error {
+  background: rgb(233 122 100 / 12%);
+  color: #a92709;
+}
+
 .score-summary {
   margin: 0 0 16px;
   font-size: 17px;
