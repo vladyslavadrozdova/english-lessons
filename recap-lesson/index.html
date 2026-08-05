@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Liza's Monday Homework — Video Recap</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="wrap">
+    <div class="work-area">
+      <div class="work-area_header">
+        <img src="node-15-129.webp" alt="Liza avatar">
+        <img src="node-15-105.webp" alt="Liza's Monday Homework — Video Recap">
+      </div>
+      <!-- end header -->
+       <form class="work-area_form">
+          <textarea name="recap" id="recap" placeholder="Try to explain the main theme of video" aria-label="Video recap"></textarea>
+          <button class="submit-button" type="submit">
+            <img class="submit-avatar" src="assets/avatar/owner-avatar-ponytail.webp" alt="" aria-hidden="true">
+            <span>I can’t wait to<br>check your resault</span>
+          </button>
+          <p class="grade-status" role="status" aria-live="polite"></p>
+       </form>
+       <!-- end form -->
+
+       <section class="results-view is-hidden" id="results-view" aria-live="polite">
+         <h1>Let’s check your answer</h1>
+         <div class="submitted-answer" id="submitted-answer"></div>
+
+         <details class="result-section" open>
+           <summary>Correction</summary>
+           <div class="correction-list" id="correction-list"></div>
+         </details>
+
+         <details class="result-section" open>
+           <summary>Missed</summary>
+           <div class="correction-list" id="missed-list"></div>
+         </details>
+
+         <details class="result-section" open>
+           <summary>Feedback</summary>
+           <div class="score-list" id="score-list"></div>
+         </details>
+
+         <button class="share-result-button" id="share-result" type="button">
+           <img src="node-30-379.webp" alt="" aria-hidden="true">
+           <span>Share resault with me</span>
+         </button>
+
+       </section>
+    </div>
+    <!-- end work area -->
+
+    <div class="video">
+      <iframe
+        data-src="https://www.youtube.com/embed/j64UB9hU6BM?rel=0&playsinline=1&autoplay=1"
+        title="Video recap lesson"
+        loading="lazy"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allowfullscreen>
+      </iframe>
+      <button class="video-cover" type="button" aria-label="Play lesson video">
+        <span class="video-cover-background" aria-hidden="true"></span>
+        <span class="video-cover-shade" aria-hidden="true"></span>
+        <span class="video-cover-cta">
+          <img src="node-15-102.webp" alt="">
+          <span>Let’s get started</span>
+        </span>
+      </button>
+    </div>
+    <!-- end video -->
+  </div>
+
+</body>
+</html>
