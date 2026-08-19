@@ -6,309 +6,268 @@
 <title>Present Simple vs Present Continuous — урок английского</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ink:#16233B;
-    --ink-soft:#2A3B57;
-    --paper:#FBF7EE;
-    --paper-dim:#F1EBDC;
-    --mustard:#E3A72E;
-    --teal:#3F8577;
-    --teal-deep:#2C5F55;
-    --wine:#7A3B47;
-    --line:#D8CFB8;
-    --radius:14px;
+    --mint:#A9D8CC;
+    --mint-dim:#9BCFC1;
+    --ink:#111114;
+    --lime:#D7FF3F;
+    --paper:#FAF9F4;
+    --lavender:#C9C0F0;
+    --line:#111114;
+    --radius:2px;
   }
   *{box-sizing:border-box;}
-  html{scroll-behavior:smooth;}
   body{
     margin:0;
-    background:var(--paper);
+    background:var(--mint);
     color:var(--ink);
     font-family:'Inter',sans-serif;
     line-height:1.6;
   }
-  h1,h2,h3{
-    font-family:'Fraunces',serif;
-    font-weight:700;
-    margin:0 0 .4em;
+  h1,h2,h3{margin:0;}
+  .display{
+    font-family:'Archivo Black',sans-serif;
+    text-transform:uppercase;
+    line-height:.92;
     letter-spacing:-.01em;
   }
   .mono{
     font-family:'IBM Plex Mono',monospace;
-    letter-spacing:.04em;
     text-transform:uppercase;
+    letter-spacing:.06em;
   }
-  a{color:inherit;}
+  .sub{font-family:'Space Grotesk',sans-serif;font-weight:700;}
+
+  /* ---------- TOP BAR ---------- */
+  .topbar{
+    max-width:1000px;margin:0 auto;
+    padding:1.6rem 1.5rem 0;
+    display:flex;justify-content:space-between;align-items:flex-start;
+    font-size:.72rem;
+  }
+  .tag{
+    background:var(--ink);color:var(--mint);
+    padding:.35em .7em;
+    display:inline-block;
+  }
+  .topbar .right{text-align:right;color:var(--ink);opacity:.75;}
 
   /* ---------- HERO ---------- */
   .hero{
-    background:var(--ink);
-    color:var(--paper);
-    padding:5rem 1.5rem 4.5rem;
+    max-width:1000px;margin:0 auto;
+    padding:1.5rem 1.5rem 2.5rem;
     position:relative;
+  }
+  .hero .display{
+    font-size:clamp(3rem,11vw,7rem);
+    margin:1.2rem 0 0;
+  }
+  .hero .lede{
+    max-width:44ch;
+    font-size:1.05rem;
+    margin-top:1.4rem;
+    color:var(--ink);
+  }
+  .chips{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1.4rem;}
+  .chip{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;
+    border:1.5px solid var(--ink);
+    padding:.4em .8em;
+    background:var(--paper);
+  }
+
+  /* ---------- APP CARD (signature element) ---------- */
+  .app-card{
+    max-width:640px;margin:2.2rem auto 0;
+    background:var(--paper);
+    border:2px solid var(--ink);
+    border-radius:6px;
     overflow:hidden;
   }
-  .hero-inner{
-    max-width:760px;
-    margin:0 auto;
-    position:relative;
-    z-index:2;
+  .app-card .card-head{
+    display:flex;align-items:center;gap:.8rem;
+    padding:1.1rem 1.3rem;
+    border-bottom:2px solid var(--ink);
   }
-  .eyebrow{
-    display:inline-flex;
-    align-items:center;
-    gap:.5em;
-    font-size:.72rem;
-    color:var(--mustard);
-    margin-bottom:1.6rem;
+  .badge{
+    width:38px;height:38px;border-radius:50%;
+    background:var(--lime);border:2px solid var(--ink);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Archivo Black',sans-serif;font-size:.85rem;
   }
-  .eyebrow::before{
-    content:"";
-    width:26px;height:1px;
-    background:var(--mustard);
-    display:inline-block;
-  }
-  .hero h1{
-    font-size:clamp(2.4rem,6vw,4.2rem);
-    line-height:1.02;
-    font-weight:900;
-    color:#fff;
-  }
-  .hero h1 em{
-    font-style:italic;
-    color:var(--mustard);
-  }
-  .hero p.lede{
-    font-size:1.1rem;
-    max-width:46ch;
-    color:#C9D2E0;
-    margin-top:1.3rem;
-  }
-  .meta-row{
+  .card-head .name{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.15rem;}
+  .card-head .sub2{font-family:'IBM Plex Mono',monospace;font-size:.68rem;color:#555;letter-spacing:.04em;}
+  .tabs{
     display:flex;
-    flex-wrap:wrap;
-    gap:.6rem;
-    margin-top:2.2rem;
+    border-bottom:2px solid var(--ink);
   }
-  .meta-chip{
-    font-family:'IBM Plex Mono',monospace;
-    font-size:.72rem;
-    letter-spacing:.05em;
-    text-transform:uppercase;
-    border:1px solid rgba(255,255,255,.25);
-    color:#DCE3EE;
-    padding:.45em .9em;
-    border-radius:999px;
+  .tab{
+    flex:1;text-align:center;padding:.75em 0;
+    font-family:'IBM Plex Mono',monospace;font-size:.72rem;letter-spacing:.04em;
+    border-right:1px solid var(--ink);
+    color:#666;
   }
-
-  /* Two-clock signature motif */
-  .clocks{
-    position:absolute;
-    right:-40px;
-    top:50%;
-    transform:translateY(-50%);
-    width:340px;
-    height:340px;
-    z-index:1;
-    opacity:.9;
-  }
-  @media (max-width:760px){ .clocks{display:none;} }
-  .clock-face{fill:none;stroke-width:1.4;}
-  .clock-always{stroke:rgba(227,167,46,.55);}
-  .clock-now{stroke:rgba(63,133,119,.75);}
-  .hand{transform-origin:center;}
-  .hand-now{
-    animation:tick 6s steps(60) infinite;
-    transform-origin:100px 100px;
-  }
-  @keyframes tick{ to{ transform:rotate(360deg); } }
+  .tab:last-child{border-right:none;}
+  .tab.active{background:var(--ink);color:var(--lime);}
 
   /* ---------- SECTIONS ---------- */
-  main{max-width:760px;margin:0 auto;padding:0 1.5rem;}
-  section{padding:3.2rem 0;border-bottom:1px solid var(--line);}
+  main{max-width:1000px;margin:0 auto;padding:0 1.5rem;}
+  section{padding:3.4rem 0;border-bottom:2px solid var(--ink);}
   section:last-of-type{border-bottom:none;}
-
-  .stamp{
-    display:inline-block;
-    font-family:'IBM Plex Mono',monospace;
-    font-size:.68rem;
-    letter-spacing:.08em;
-    text-transform:uppercase;
-    padding:.3em .8em;
-    border:1.5px solid currentColor;
-    border-radius:4px;
-    transform:rotate(-2deg);
-    margin-bottom:1rem;
+  .sec-head{
+    display:flex;align-items:baseline;gap:.9rem;margin-bottom:1.6rem;flex-wrap:wrap;
   }
-  .stamp.always{color:var(--mustard);}
-  .stamp.now{color:var(--teal-deep);}
-
-  .grid-2{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:1.2rem;
-    margin-top:1.6rem;
+  .sec-num{
+    font-family:'Archivo Black',sans-serif;
+    font-size:2.4rem;color:var(--paper);
+    -webkit-text-stroke:2px var(--ink);
   }
-  @media (max-width:600px){ .grid-2{grid-template-columns:1fr;} }
+  .sec-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.7rem;text-transform:uppercase;}
+
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+  @media (max-width:640px){.grid-2{grid-template-columns:1fr;}}
   .rule-card{
-    background:var(--paper-dim);
-    border-radius:var(--radius);
+    background:var(--paper);
+    border:2px solid var(--ink);
     padding:1.4rem 1.5rem;
-    border:1px solid var(--line);
   }
-  .rule-card h3{font-size:1.15rem;margin-bottom:.5rem;}
-  .rule-card .formula{
-    font-family:'IBM Plex Mono',monospace;
-    font-size:.85rem;
-    background:#fff;
-    border-radius:8px;
-    padding:.6em .8em;
-    margin:.7em 0;
-    color:var(--ink-soft);
+  .rule-card .kicker{
+    font-family:'IBM Plex Mono',monospace;font-size:.68rem;
+    letter-spacing:.05em;padding:.3em .6em;display:inline-block;margin-bottom:.7em;
   }
-  .rule-card .example{font-style:italic;color:var(--ink-soft);}
+  .rule-card.always .kicker{background:var(--lavender);}
+  .rule-card.now .kicker{background:var(--lime);}
+  .rule-card h3{font-family:'Space Grotesk',sans-serif;font-size:1.2rem;margin-bottom:.5em;}
+  .formula{
+    font-family:'IBM Plex Mono',monospace;font-size:.85rem;
+    background:var(--mint);border:1.5px solid var(--ink);
+    padding:.6em .8em;margin:.7em 0;
+  }
+  .example{font-style:italic;color:#333;}
 
-  table{
-    width:100%;
-    border-collapse:collapse;
-    margin-top:1.4rem;
-    font-size:.94rem;
-  }
-  th,td{
-    text-align:left;
-    padding:.7em .9em;
-    border-bottom:1px solid var(--line);
-  }
+  table{width:100%;border-collapse:collapse;margin-top:1.6rem;font-size:.92rem;}
+  th,td{text-align:left;padding:.7em .8em;border:1.5px solid var(--ink);}
   th{
-    font-family:'IBM Plex Mono',monospace;
-    font-size:.72rem;
-    text-transform:uppercase;
-    letter-spacing:.05em;
-    color:var(--ink-soft);
+    font-family:'IBM Plex Mono',monospace;font-size:.68rem;text-transform:uppercase;
+    background:var(--ink);color:var(--lime);letter-spacing:.05em;
   }
+  td{background:var(--paper);}
 
-  .exercise-list{list-style:none;padding:0;margin-top:1.4rem;}
+  .exercise-list{list-style:none;padding:0;margin:0;}
   .exercise-list li{
-    display:flex;
-    align-items:center;
-    gap:.8rem;
-    padding:.9rem 0;
-    border-bottom:1px dashed var(--line);
-    flex-wrap:wrap;
+    display:flex;align-items:center;gap:.9rem;flex-wrap:wrap;
+    padding:1rem 1.2rem;
+    border:1.5px solid var(--ink);
+    background:var(--paper);
+    margin-bottom:.7rem;
   }
-  .exercise-list li:last-child{border-bottom:none;}
   .q-num{
-    font-family:'IBM Plex Mono',monospace;
-    color:var(--teal-deep);
-    font-size:.85rem;
-    min-width:1.6em;
+    font-family:'Archivo Black',sans-serif;font-size:.95rem;
+    background:var(--ink);color:var(--lime);
+    width:2em;height:2em;display:flex;align-items:center;justify-content:center;flex-shrink:0;
   }
   .reveal-btn{
-    font-family:'IBM Plex Mono',monospace;
-    font-size:.7rem;
-    text-transform:uppercase;
-    letter-spacing:.05em;
-    background:none;
-    border:1px solid var(--ink);
-    color:var(--ink);
-    padding:.35em .8em;
-    border-radius:999px;
-    cursor:pointer;
-    margin-left:auto;
+    font-family:'IBM Plex Mono',monospace;font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;
+    background:var(--paper);border:1.5px solid var(--ink);color:var(--ink);
+    padding:.5em 1em;cursor:pointer;margin-left:auto;
   }
-  .reveal-btn:hover{background:var(--ink);color:var(--paper);}
+  .reveal-btn:hover{background:var(--lime);}
   .answer{
-    display:none;
-    font-weight:600;
-    color:var(--teal-deep);
-    width:100%;
-    padding-left:2.4rem;
+    display:none;width:100%;padding-left:2.9rem;
+    font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--ink);
   }
   .answer.show{display:block;}
 
   .pair-box{
-    background:var(--ink);
-    color:var(--paper);
-    border-radius:var(--radius);
-    padding:1.6rem 1.7rem;
-    margin-top:1.4rem;
+    background:var(--ink);color:var(--paper);
+    padding:1.7rem 1.8rem;border:2px solid var(--ink);
   }
-  .pair-box p{margin:.5em 0;}
-  .pair-box .q{color:var(--mustard);}
+  .pair-box p{margin:.6em 0;font-family:'Space Grotesk',sans-serif;font-weight:600;}
+  .pair-box .q::before{content:"→ ";color:var(--lime);}
 
   .game-box{
-    border:2px dashed var(--teal);
-    border-radius:var(--radius);
-    padding:1.5rem 1.6rem;
-    margin-top:1.4rem;
-    background:rgba(63,133,119,.05);
+    border:2px dashed var(--ink);
+    padding:1.6rem 1.7rem;
+    background:var(--mint-dim);
   }
 
   .homework{
-    background:var(--wine);
-    color:#fff;
-    border-radius:var(--radius);
-    padding:1.6rem 1.7rem;
+    background:var(--lime);
+    border:2px solid var(--ink);
+    padding:1.7rem 1.8rem;
   }
-  .homework .stamp{color:#F4D9DD;border-color:#F4D9DD;}
+  .homework .kicker{
+    font-family:'IBM Plex Mono',monospace;font-size:.7rem;
+    background:var(--ink);color:var(--lime);
+    padding:.35em .7em;display:inline-block;margin-bottom:.8em;
+  }
+  .homework p{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:1.05rem;}
 
-  details{
-    margin-top:2.5rem;
-    border-top:1px solid var(--line);
-    padding-top:1.2rem;
-  }
+  details{margin-top:2.6rem;}
   summary{
     cursor:pointer;
-    font-family:'IBM Plex Mono',monospace;
-    font-size:.78rem;
-    text-transform:uppercase;
-    letter-spacing:.05em;
-    color:var(--ink-soft);
+    font-family:'IBM Plex Mono',monospace;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;
+    padding:.6em 0;border-top:2px solid var(--ink);
   }
-  details[open] summary{margin-bottom:.8rem;}
   .teacher-note{
-    font-size:.92rem;
-    color:var(--ink-soft);
-    background:var(--paper-dim);
-    border-radius:10px;
-    padding:1rem 1.2rem;
+    font-size:.92rem;color:#333;
+    background:var(--paper);border:1.5px solid var(--ink);
+    padding:1rem 1.2rem;margin-top:.8rem;
+  }
+
+  .bigword{
+    position:relative;
+    text-align:right;
+    padding:2rem 1.5rem 3rem;
+    overflow:hidden;
+  }
+  .bigword span{
+    font-family:'Archivo Black',sans-serif;
+    font-size:clamp(4rem,16vw,11rem);
+    color:transparent;
+    -webkit-text-stroke:2px var(--ink);
+    line-height:.85;
   }
 
   footer{
-    text-align:center;
-    padding:2.5rem 1.5rem 3rem;
-    font-family:'IBM Plex Mono',monospace;
-    font-size:.72rem;
-    color:var(--ink-soft);
-    letter-spacing:.04em;
+    text-align:center;padding:2rem 1.5rem 2.5rem;
+    font-family:'IBM Plex Mono',monospace;font-size:.7rem;letter-spacing:.05em;
   }
 
-  :focus-visible{outline:2px solid var(--teal);outline-offset:2px;}
+  :focus-visible{outline:3px solid var(--ink);outline-offset:2px;}
 </style>
 </head>
 <body>
 
+<div class="topbar">
+  <span class="tag mono">Index / A2 English</span>
+  <span class="right mono">Lesson concept<br>PSC—01 / v2</span>
+</div>
+
 <div class="hero">
-  <svg class="clocks" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-    <circle class="clock-face clock-always" cx="70" cy="130" r="62"/>
-    <line x1="70" y1="130" x2="70" y2="90" class="clock-always" stroke-width="2"/>
-    <line x1="70" y1="130" x2="98" y2="130" class="clock-always" stroke-width="2"/>
-    <circle class="clock-face clock-now" cx="130" cy="90" r="62"/>
-    <g class="hand hand-now">
-      <line x1="100" y1="100" x2="100" y2="58" class="clock-now" stroke-width="2" transform="translate(30,-10)"/>
-    </g>
-    <line x1="130" y1="90" x2="130" y2="52" class="clock-now" stroke-width="2"/>
-  </svg>
-  <div class="hero-inner">
-    <div class="eyebrow mono">Урок английского · Elementary A2</div>
-    <h1>Что вы делаете <em>всегда</em>,<br>а что — <em>прямо сейчас</em></h1>
-    <p class="lede">Present Simple против Present Continuous: как объяснить разницу так, чтобы ученики почувствовали её, а не зазубрили.</p>
-    <div class="meta-row">
-      <span class="meta-chip">45 минут</span>
-      <span class="meta-chip">Уровень A2</span>
-      <span class="meta-chip">Грамматика + говорение</span>
+  <h1 class="display">NOW<br>vs<br>ALWAYS</h1>
+  <p class="lede">Present Simple против Present Continuous: как объяснить разницу так, чтобы ученики почувствовали её, а не зазубрили.</p>
+  <div class="chips">
+    <span class="chip">45 минут</span>
+    <span class="chip">Уровень A2</span>
+    <span class="chip">Грамматика + говорение</span>
+  </div>
+
+  <div class="app-card">
+    <div class="card-head">
+      <div class="badge">Pr</div>
+      <div>
+        <div class="name">Present tenses</div>
+        <div class="sub2">GRAMMAR / LIVE</div>
+      </div>
+    </div>
+    <div class="tabs">
+      <div class="tab">Habit</div>
+      <div class="tab active">Right now</div>
+      <div class="tab">Future plan</div>
     </div>
   </div>
 </div>
@@ -316,8 +275,10 @@
 <main>
 
   <section>
-    <span class="stamp now">01 · Разминка</span>
-    <h2>С чего начать</h2>
+    <div class="sec-head">
+      <span class="sec-num">01</span>
+      <span class="sec-title">Разминка</span>
+    </div>
     <p>Задайте классу два вопроса подряд и попросите заметить разницу в самих вопросах, ещё до объяснения правил:</p>
     <ul>
       <li><strong>What are you doing right now?</strong></li>
@@ -327,18 +288,20 @@
   </section>
 
   <section>
-    <span class="stamp always">02 · Правило</span>
-    <h2>Две грамматики, два ритма</h2>
+    <div class="sec-head">
+      <span class="sec-num">02</span>
+      <span class="sec-title">Правило</span>
+    </div>
     <div class="grid-2">
-      <div class="rule-card">
-        <span class="mono" style="color:var(--mustard);font-size:.7rem;">Always / usually / often</span>
+      <div class="rule-card always">
+        <span class="kicker">Always / usually / often</span>
         <h3>Present Simple</h3>
         <p>Регулярные действия, привычки, факты — то, что происходит снова и снова.</p>
         <div class="formula">subject + verb (+s / es)</div>
         <p class="example">She works in a bank. I play tennis every weekend.</p>
       </div>
-      <div class="rule-card">
-        <span class="mono" style="color:var(--teal-deep);font-size:.7rem;">Now / at the moment</span>
+      <div class="rule-card now">
+        <span class="kicker">Now / at the moment</span>
         <h3>Present Continuous</h3>
         <p>Действие происходит прямо сейчас или разворачивается в ближайшем будущем.</p>
         <div class="formula">subject + am/is/are + verb-ing</div>
@@ -357,10 +320,12 @@
   </section>
 
   <section>
-    <span class="stamp now">03 · Практика</span>
-    <h2>Заполните пропуски</h2>
+    <div class="sec-head">
+      <span class="sec-num">03</span>
+      <span class="sec-title">Практика</span>
+    </div>
     <p>Ученики решают самостоятельно, затем нажимают «Показать ответ» для проверки.</p>
-    <ul class="exercise-list" id="quiz">
+    <ul class="exercise-list">
       <li>
         <span class="q-num">1</span>
         <span>She ___________ (read) a book right now.</span>
@@ -395,8 +360,10 @@
   </section>
 
   <section>
-    <span class="stamp always">04 · Говорение</span>
-    <h2>Работа в парах</h2>
+    <div class="sec-head">
+      <span class="sec-num">04</span>
+      <span class="sec-title">Говорение</span>
+    </div>
     <p>Разбейте класс на пары. Один задаёт вопрос, второй отвечает полным предложением.</p>
     <div class="pair-box">
       <p class="q">What are you doing now?</p>
@@ -407,8 +374,10 @@
   </section>
 
   <section>
-    <span class="stamp now">05 · Игра</span>
-    <h2>Мим</h2>
+    <div class="sec-head">
+      <span class="sec-num">05</span>
+      <span class="sec-title">Игра «Мим»</span>
+    </div>
     <div class="game-box">
       <p>Один ученик молча показывает действие (читает, готовит, танцует). Остальные угадывают:</p>
       <p><em>"You are dancing!"</em></p>
@@ -418,7 +387,7 @@
 
   <section style="border-bottom:none;">
     <div class="homework">
-      <span class="stamp">Домашнее задание</span>
+      <span class="kicker">Домашнее задание</span>
       <p>Напишите 5 предложений о том, что вы обычно делаете по выходным (Present Simple), и 3 предложения о том, что вы делаете прямо сейчас, сидя дома (Present Continuous).</p>
     </div>
 
@@ -431,6 +400,8 @@
   </section>
 
 </main>
+
+<div class="bigword"><span>TENSE</span></div>
 
 <footer>English Lessons · Present Simple vs Present Continuous</footer>
 
