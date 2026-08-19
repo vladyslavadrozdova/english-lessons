@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Present Simple vs Present Continuous — урок английского</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#16233B;
+    --ink-soft:#2A3B57;
+    --paper:#FBF7EE;
+    --paper-dim:#F1EBDC;
+    --mustard:#E3A72E;
+    --teal:#3F8577;
+    --teal-deep:#2C5F55;
+    --wine:#7A3B47;
+    --line:#D8CFB8;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    line-height:1.6;
+  }
+  h1,h2,h3{
+    font-family:'Fraunces',serif;
+    font-weight:700;
+    margin:0 0 .4em;
+    letter-spacing:-.01em;
+  }
+  .mono{
+    font-family:'IBM Plex Mono',monospace;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+  }
+  a{color:inherit;}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    background:var(--ink);
+    color:var(--paper);
+    padding:5rem 1.5rem 4.5rem;
+    position:relative;
+    overflow:hidden;
+  }
+  .hero-inner{
+    max-width:760px;
+    margin:0 auto;
+    position:relative;
+    z-index:2;
+  }
+  .eyebrow{
+    display:inline-flex;
+    align-items:center;
+    gap:.5em;
+    font-size:.72rem;
+    color:var(--mustard);
+    margin-bottom:1.6rem;
+  }
+  .eyebrow::before{
+    content:"";
+    width:26px;height:1px;
+    background:var(--mustard);
+    display:inline-block;
+  }
+  .hero h1{
+    font-size:clamp(2.4rem,6vw,4.2rem);
+    line-height:1.02;
+    font-weight:900;
+    color:#fff;
+  }
+  .hero h1 em{
+    font-style:italic;
+    color:var(--mustard);
+  }
+  .hero p.lede{
+    font-size:1.1rem;
+    max-width:46ch;
+    color:#C9D2E0;
+    margin-top:1.3rem;
+  }
+  .meta-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:.6rem;
+    margin-top:2.2rem;
+  }
+  .meta-chip{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:.72rem;
+    letter-spacing:.05em;
+    text-transform:uppercase;
+    border:1px solid rgba(255,255,255,.25);
+    color:#DCE3EE;
+    padding:.45em .9em;
+    border-radius:999px;
+  }
+
+  /* Two-clock signature motif */
+  .clocks{
+    position:absolute;
+    right:-40px;
+    top:50%;
+    transform:translateY(-50%);
+    width:340px;
+    height:340px;
+    z-index:1;
+    opacity:.9;
+  }
+  @media (max-width:760px){ .clocks{display:none;} }
+  .clock-face{fill:none;stroke-width:1.4;}
+  .clock-always{stroke:rgba(227,167,46,.55);}
+  .clock-now{stroke:rgba(63,133,119,.75);}
+  .hand{transform-origin:center;}
+  .hand-now{
+    animation:tick 6s steps(60) infinite;
+    transform-origin:100px 100px;
+  }
+  @keyframes tick{ to{ transform:rotate(360deg); } }
+
+  /* ---------- SECTIONS ---------- */
+  main{max-width:760px;margin:0 auto;padding:0 1.5rem;}
+  section{padding:3.2rem 0;border-bottom:1px solid var(--line);}
+  section:last-of-type{border-bottom:none;}
+
+  .stamp{
+    display:inline-block;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:.68rem;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    padding:.3em .8em;
+    border:1.5px solid currentColor;
+    border-radius:4px;
+    transform:rotate(-2deg);
+    margin-bottom:1rem;
+  }
+  .stamp.always{color:var(--mustard);}
+  .stamp.now{color:var(--teal-deep);}
+
+  .grid-2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:1.2rem;
+    margin-top:1.6rem;
+  }
+  @media (max-width:600px){ .grid-2{grid-template-columns:1fr;} }
+  .rule-card{
+    background:var(--paper-dim);
+    border-radius:var(--radius);
+    padding:1.4rem 1.5rem;
+    border:1px solid var(--line);
+  }
+  .rule-card h3{font-size:1.15rem;margin-bottom:.5rem;}
+  .rule-card .formula{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:.85rem;
+    background:#fff;
+    border-radius:8px;
+    padding:.6em .8em;
+    margin:.7em 0;
+    color:var(--ink-soft);
+  }
+  .rule-card .example{font-style:italic;color:var(--ink-soft);}
+
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:1.4rem;
+    font-size:.94rem;
+  }
+  th,td{
+    text-align:left;
+    padding:.7em .9em;
+    border-bottom:1px solid var(--line);
+  }
+  th{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:.72rem;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    color:var(--ink-soft);
+  }
+
+  .exercise-list{list-style:none;padding:0;margin-top:1.4rem;}
+  .exercise-list li{
+    display:flex;
+    align-items:center;
+    gap:.8rem;
+    padding:.9rem 0;
+    border-bottom:1px dashed var(--line);
+    flex-wrap:wrap;
+  }
+  .exercise-list li:last-child{border-bottom:none;}
+  .q-num{
+    font-family:'IBM Plex Mono',monospace;
+    color:var(--teal-deep);
+    font-size:.85rem;
+    min-width:1.6em;
+  }
+  .reveal-btn{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:.7rem;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    background:none;
+    border:1px solid var(--ink);
+    color:var(--ink);
+    padding:.35em .8em;
+    border-radius:999px;
+    cursor:pointer;
+    margin-left:auto;
+  }
+  .reveal-btn:hover{background:var(--ink);color:var(--paper);}
+  .answer{
+    display:none;
+    font-weight:600;
+    color:var(--teal-deep);
+    width:100%;
+    padding-left:2.4rem;
+  }
+  .answer.show{display:block;}
+
+  .pair-box{
+    background:var(--ink);
+    color:var(--paper);
+    border-radius:var(--radius);
+    padding:1.6rem 1.7rem;
+    margin-top:1.4rem;
+  }
+  .pair-box p{margin:.5em 0;}
+  .pair-box .q{color:var(--mustard);}
+
+  .game-box{
+    border:2px dashed var(--teal);
+    border-radius:var(--radius);
+    padding:1.5rem 1.6rem;
+    margin-top:1.4rem;
+    background:rgba(63,133,119,.05);
+  }
+
+  .homework{
+    background:var(--wine);
+    color:#fff;
+    border-radius:var(--radius);
+    padding:1.6rem 1.7rem;
+  }
+  .homework .stamp{color:#F4D9DD;border-color:#F4D9DD;}
+
+  details{
+    margin-top:2.5rem;
+    border-top:1px solid var(--line);
+    padding-top:1.2rem;
+  }
+  summary{
+    cursor:pointer;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:.78rem;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    color:var(--ink-soft);
+  }
+  details[open] summary{margin-bottom:.8rem;}
+  .teacher-note{
+    font-size:.92rem;
+    color:var(--ink-soft);
+    background:var(--paper-dim);
+    border-radius:10px;
+    padding:1rem 1.2rem;
+  }
+
+  footer{
+    text-align:center;
+    padding:2.5rem 1.5rem 3rem;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:.72rem;
+    color:var(--ink-soft);
+    letter-spacing:.04em;
+  }
+
+  :focus-visible{outline:2px solid var(--teal);outline-offset:2px;}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <svg class="clocks" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <circle class="clock-face clock-always" cx="70" cy="130" r="62"/>
+    <line x1="70" y1="130" x2="70" y2="90" class="clock-always" stroke-width="2"/>
+    <line x1="70" y1="130" x2="98" y2="130" class="clock-always" stroke-width="2"/>
+    <circle class="clock-face clock-now" cx="130" cy="90" r="62"/>
+    <g class="hand hand-now">
+      <line x1="100" y1="100" x2="100" y2="58" class="clock-now" stroke-width="2" transform="translate(30,-10)"/>
+    </g>
+    <line x1="130" y1="90" x2="130" y2="52" class="clock-now" stroke-width="2"/>
+  </svg>
+  <div class="hero-inner">
+    <div class="eyebrow mono">Урок английского · Elementary A2</div>
+    <h1>Что вы делаете <em>всегда</em>,<br>а что — <em>прямо сейчас</em></h1>
+    <p class="lede">Present Simple против Present Continuous: как объяснить разницу так, чтобы ученики почувствовали её, а не зазубрили.</p>
+    <div class="meta-row">
+      <span class="meta-chip">45 минут</span>
+      <span class="meta-chip">Уровень A2</span>
+      <span class="meta-chip">Грамматика + говорение</span>
+    </div>
+  </div>
+</div>
+
+<main>
+
+  <section>
+    <span class="stamp now">01 · Разминка</span>
+    <h2>С чего начать</h2>
+    <p>Задайте классу два вопроса подряд и попросите заметить разницу в самих вопросах, ещё до объяснения правил:</p>
+    <ul>
+      <li><strong>What are you doing right now?</strong></li>
+      <li><strong>What do you usually do in the morning?</strong></li>
+    </ul>
+    <p>Один вопрос — про момент. Другой — про привычку. Ученики сами формулируют эту разницу своими словами — это и есть мостик к теме.</p>
+  </section>
+
+  <section>
+    <span class="stamp always">02 · Правило</span>
+    <h2>Две грамматики, два ритма</h2>
+    <div class="grid-2">
+      <div class="rule-card">
+        <span class="mono" style="color:var(--mustard);font-size:.7rem;">Always / usually / often</span>
+        <h3>Present Simple</h3>
+        <p>Регулярные действия, привычки, факты — то, что происходит снова и снова.</p>
+        <div class="formula">subject + verb (+s / es)</div>
+        <p class="example">She works in a bank. I play tennis every weekend.</p>
+      </div>
+      <div class="rule-card">
+        <span class="mono" style="color:var(--teal-deep);font-size:.7rem;">Now / at the moment</span>
+        <h3>Present Continuous</h3>
+        <p>Действие происходит прямо сейчас или разворачивается в ближайшем будущем.</p>
+        <div class="formula">subject + am/is/are + verb-ing</div>
+        <p class="example">She is working right now. I am playing tennis at the moment.</p>
+      </div>
+    </div>
+
+    <table>
+      <thead><tr><th>Present Simple</th><th>Present Continuous</th></tr></thead>
+      <tbody>
+        <tr><td>always, usually, often, sometimes, never</td><td>now, right now, at the moment</td></tr>
+        <tr><td>every day / week / year</td><td>look! listen!</td></tr>
+        <tr><td>обычный распорядок</td><td>today, this week (временно)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <span class="stamp now">03 · Практика</span>
+    <h2>Заполните пропуски</h2>
+    <p>Ученики решают самостоятельно, затем нажимают «Показать ответ» для проверки.</p>
+    <ul class="exercise-list" id="quiz">
+      <li>
+        <span class="q-num">1</span>
+        <span>She ___________ (read) a book right now.</span>
+        <button class="reveal-btn" onclick="this.nextElementSibling.classList.toggle('show')">Показать ответ</button>
+        <div class="answer">is reading</div>
+      </li>
+      <li>
+        <span class="q-num">2</span>
+        <span>He usually ___________ (go) to school by bus.</span>
+        <button class="reveal-btn" onclick="this.nextElementSibling.classList.toggle('show')">Показать ответ</button>
+        <div class="answer">goes</div>
+      </li>
+      <li>
+        <span class="q-num">3</span>
+        <span>Look! The children ___________ (play) in the garden.</span>
+        <button class="reveal-btn" onclick="this.nextElementSibling.classList.toggle('show')">Показать ответ</button>
+        <div class="answer">are playing</div>
+      </li>
+      <li>
+        <span class="q-num">4</span>
+        <span>I ___________ (not like) coffee.</span>
+        <button class="reveal-btn" onclick="this.nextElementSibling.classList.toggle('show')">Показать ответ</button>
+        <div class="answer">don't like</div>
+      </li>
+      <li>
+        <span class="q-num">5</span>
+        <span>We ___________ (study) English every Monday.</span>
+        <button class="reveal-btn" onclick="this.nextElementSibling.classList.toggle('show')">Показать ответ</button>
+        <div class="answer">study</div>
+      </li>
+    </ul>
+  </section>
+
+  <section>
+    <span class="stamp always">04 · Говорение</span>
+    <h2>Работа в парах</h2>
+    <p>Разбейте класс на пары. Один задаёт вопрос, второй отвечает полным предложением.</p>
+    <div class="pair-box">
+      <p class="q">What are you doing now?</p>
+      <p class="q">What do you do every weekend?</p>
+      <p class="q">Is it raining outside right now?</p>
+      <p class="q">Do you usually watch TV in the evening?</p>
+    </div>
+  </section>
+
+  <section>
+    <span class="stamp now">05 · Игра</span>
+    <h2>Мим</h2>
+    <div class="game-box">
+      <p>Один ученик молча показывает действие (читает, готовит, танцует). Остальные угадывают:</p>
+      <p><em>"You are dancing!"</em></p>
+      <p>Затем учитель спрашивает: <em>"Do you usually dance?"</em> — ученик отвечает Yes/No и разворачивает мысль в полный ответ.</p>
+    </div>
+  </section>
+
+  <section style="border-bottom:none;">
+    <div class="homework">
+      <span class="stamp">Домашнее задание</span>
+      <p>Напишите 5 предложений о том, что вы обычно делаете по выходным (Present Simple), и 3 предложения о том, что вы делаете прямо сейчас, сидя дома (Present Continuous).</p>
+    </div>
+
+    <details>
+      <summary>Заметки для учителя</summary>
+      <div class="teacher-note">
+        Обратите особое внимание на глаголы состояния (state verbs: like, know, want, believe) — они обычно не используются в Continuous форме. Для слабых учеников держите под рукой карточки-подсказки с сигнальными словами из таблицы выше.
+      </div>
+    </details>
+  </section>
+
+</main>
+
+<footer>English Lessons · Present Simple vs Present Continuous</footer>
+
+</body>
+</html>
