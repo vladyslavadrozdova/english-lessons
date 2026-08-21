@@ -6,7 +6,8 @@ service cloud.firestore {
       allow read: if request.auth != null;
 
       allow create, update: if request.auth != null
-        && request.resource.data.keys().hasOnly(['state', 'updatedAt'])
+        && request.resource.data.keys().hasOnly(['state', 'reflection', 'updatedAt'])
+        && request.resource.data.keys().hasAll(['state', 'reflection', 'updatedAt'])
         && request.resource.data.state is map
         && request.resource.data.state.keys().hasOnly([
           'Listening',
@@ -42,6 +43,33 @@ service cloud.firestore {
         && request.resource.data.state.Confidence is int
         && request.resource.data.state.Confidence >= 1
         && request.resource.data.state.Confidence <= 10
+        && request.resource.data.reflection is map
+        && request.resource.data.reflection.keys().hasOnly([
+          '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
+        ])
+        && request.resource.data.reflection.keys().hasAll([
+          '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
+        ])
+        && request.resource.data.reflection['0'] is string
+        && request.resource.data.reflection['0'].size() <= 4000
+        && request.resource.data.reflection['1'] is string
+        && request.resource.data.reflection['1'].size() <= 4000
+        && request.resource.data.reflection['2'] is string
+        && request.resource.data.reflection['2'].size() <= 4000
+        && request.resource.data.reflection['3'] is string
+        && request.resource.data.reflection['3'].size() <= 4000
+        && request.resource.data.reflection['4'] is string
+        && request.resource.data.reflection['4'].size() <= 4000
+        && request.resource.data.reflection['5'] is string
+        && request.resource.data.reflection['5'].size() <= 4000
+        && request.resource.data.reflection['6'] is string
+        && request.resource.data.reflection['6'].size() <= 4000
+        && request.resource.data.reflection['7'] is string
+        && request.resource.data.reflection['7'].size() <= 4000
+        && request.resource.data.reflection['8'] is string
+        && request.resource.data.reflection['8'].size() <= 4000
+        && request.resource.data.reflection['9'] is string
+        && request.resource.data.reflection['9'].size() <= 4000
         && request.resource.data.updatedAt == request.time;
 
       allow delete: if false;
