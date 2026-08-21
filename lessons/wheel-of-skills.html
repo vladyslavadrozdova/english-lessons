@@ -158,22 +158,32 @@
 const categories = ["Listening","Reading","Speaking","Vocabulary","Pronunciation","Grammar","Writing","Confidence"];
 const cx = 340, cy = 340, outerR = 234, levels = 10, spacing = outerR / levels;
 const labelR = 278;
-const STORAGE_KEY = 'wheelOfSkillsLevels';
-const STORAGE_TS_KEY = 'wheelOfSkillsSavedAt';
+
+// Общее облачное хранилище (без регистрации) — один результат виден с любого устройства.
+const SHARED_URL = 'https://kvdb.io/vladyslavadrozdova-wheel-of-skills/current-result';
 
 let state = {};
 categories.forEach(c => state[c] = 5);
 
 let savedState = null;
 let savedAt = null;
-try {
-  const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-  if (saved) {
-    categories.forEach(c => { if (saved[c]) state[c] = saved[c]; });
-    savedState = { ...state };
-    savedAt = localStorage.getItem(STORAGE_TS_KEY);
+
+async function loadShared(){
+  try {
+    const res = await fetch(SHARED_URL);
+    if (res.ok) {
+      const saved = await res.json();
+      if (saved && saved.state) {
+        categories.forEach(c => { if (saved.state[c]) state[c] = saved.state[c]; });
+        savedState = { ...state };
+        savedAt = saved.savedAt || null;
+      }
+    }
+  } catch(e) {
+    console.warn('Не удалось загрузить общий результат', e);
   }
-} catch(e) {}
+  render();
+}
 
 function polar(angleDeg, r){
   const rad = angleDeg * Math.PI / 180;
@@ -319,24 +329,34 @@ document.getElementById('resetBtn').addEventListener('click', () => {
   categories.forEach(c => state[c] = 5);
   render();
 });
-document.getElementById('saveBtn').addEventListener('click', () => {
+document.getElementById('saveBtn').addEventListener('click', async () => {
   const now = new Date().toISOString();
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    localStorage.setItem(STORAGE_TS_KEY, now);
-  } catch(e) {}
-  savedState = { ...state };
-  savedAt = now;
-  renderStatus();
   const btn = document.getElementById('saveBtn');
   const original = btn.textContent;
-  btn.textContent = 'Saved';
-  setTimeout(() => btn.textContent = original, 1200);
+  btn.textContent = 'Saving…';
+  btn.disabled = true;
+  try {
+    await fetch(SHARED_URL, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ state, savedAt: now })
+    });
+    savedState = { ...state };
+    savedAt = now;
+    btn.textContent = 'Saved';
+  } catch(e) {
+    console.warn('Не удалось сохранить общий результат', e);
+    btn.textContent = 'Ошибка, попробуйте ещё раз';
+  }
+  renderStatus();
+  btn.disabled = false;
+  setTimeout(() => btn.textContent = original, 1500);
 });
 
 buildStatic();
 buildInteractive();
-render();
+document.getElementById('statusText').textContent = 'Загрузка…';
+loadShared();
 </script>
 </body>
 </html>
