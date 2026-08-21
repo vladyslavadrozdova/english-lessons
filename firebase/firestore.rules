@@ -1,0 +1,50 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /wheels/shared-wheel {
+      allow read: if request.auth != null;
+
+      allow create, update: if request.auth != null
+        && request.resource.data.keys().hasOnly(['state', 'updatedAt'])
+        && request.resource.data.state is map
+        && request.resource.data.state.keys().hasOnly([
+          'Listening',
+          'Reading',
+          'Speaking',
+          'Vocabulary',
+          'Pronunciation',
+          'Grammar',
+          'Writing',
+          'Confidence'
+        ])
+        && request.resource.data.state.Listening is int
+        && request.resource.data.state.Listening >= 1
+        && request.resource.data.state.Listening <= 10
+        && request.resource.data.state.Reading is int
+        && request.resource.data.state.Reading >= 1
+        && request.resource.data.state.Reading <= 10
+        && request.resource.data.state.Speaking is int
+        && request.resource.data.state.Speaking >= 1
+        && request.resource.data.state.Speaking <= 10
+        && request.resource.data.state.Vocabulary is int
+        && request.resource.data.state.Vocabulary >= 1
+        && request.resource.data.state.Vocabulary <= 10
+        && request.resource.data.state.Pronunciation is int
+        && request.resource.data.state.Pronunciation >= 1
+        && request.resource.data.state.Pronunciation <= 10
+        && request.resource.data.state.Grammar is int
+        && request.resource.data.state.Grammar >= 1
+        && request.resource.data.state.Grammar <= 10
+        && request.resource.data.state.Writing is int
+        && request.resource.data.state.Writing >= 1
+        && request.resource.data.state.Writing <= 10
+        && request.resource.data.state.Confidence is int
+        && request.resource.data.state.Confidence >= 1
+        && request.resource.data.state.Confidence <= 10
+        && request.resource.data.updatedAt == request.time;
+
+      allow delete: if false;
+    }
+  }
+}

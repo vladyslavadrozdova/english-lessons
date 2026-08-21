@@ -63,6 +63,11 @@
   .status.saved .dot{ background:var(--accent); }
   .status.dirty{ color:#B08A2E; }
   .status.dirty .dot{ background:#D7A23D; }
+  .status.loading{ color:#5D6F8B; }
+  .status.loading .dot{ background:#7B91B4; animation:pulse 1.1s ease-in-out infinite alternate; }
+  .status.error{ color:#A44747; }
+  .status.error .dot{ background:#C85D5D; }
+  @keyframes pulse{ from{ opacity:0.35; } to{ opacity:1; } }
 
   .panel-title{
     display:flex; justify-content:space-between; align-items:center;
@@ -93,6 +98,7 @@
   button.btn:hover{ background:var(--ink); color:#fff; }
   button.btn.primary{ background:var(--accent); border-color:var(--accent); color:#fff; }
   button.btn.primary:hover{ background:var(--accent-deep); border-color:var(--accent-deep); }
+  button.btn:disabled{ opacity:0.55; cursor:wait; }
 
   .overlay{
     position:fixed; inset:0; background:rgba(20,18,16,0.55); backdrop-filter:blur(2px);
@@ -140,7 +146,7 @@
 
     <div class="actions">
       <button class="btn" id="resetBtn">Reset</button>
-      <button class="btn primary" id="saveBtn">Save</button>
+      <button class="btn primary" id="saveBtn" disabled>Save</button>
     </div>
   </div>
 </div>
@@ -154,35 +160,91 @@
   </div>
 </div>
 
-<script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+import { doc, getFirestore, onSnapshot, serverTimestamp, setDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBRN7DCQo6l0zoczP3UnewppmJmubyDNq8",
+  authDomain: "lesson-v1-de126.firebaseapp.com",
+  projectId: "lesson-v1-de126",
+  storageBucket: "lesson-v1-de126.firebasestorage.app",
+  messagingSenderId: "304810384648",
+  appId: "1:304810384648:web:cc15bc54cb56648a4c60bd"
+};
+
+const firebaseApp = initializeApp(firebaseConfig);
+const auth = getAuth(firebaseApp);
+const db = getFirestore(firebaseApp);
+const wheelRef = doc(db, "wheels", "shared-wheel");
+
 const categories = ["Listening","Reading","Speaking","Vocabulary","Pronunciation","Grammar","Writing","Confidence"];
 const cx = 340, cy = 340, outerR = 234, levels = 10, spacing = outerR / levels;
 const labelR = 278;
-
-// Общее облачное хранилище (без регистрации) — один результат виден с любого устройства.
-const SHARED_URL = 'https://kvdb.io/vladyslavadrozdova-wheel-of-skills/current-result';
 
 let state = {};
 categories.forEach(c => state[c] = 5);
 
 let savedState = null;
 let savedAt = null;
+let syncStatus = "loading";
+let syncError = "";
+let firebaseReady = false;
 
-async function loadShared(){
+function validLevel(value){
+  return Number.isInteger(value) && value >= 1 && value <= 10;
+}
+
+function applyRemoteResult(data){
+  const remoteState = data && data.state;
+  if (!remoteState || typeof remoteState !== "object") return false;
+
+  const isComplete = categories.every(category => validLevel(remoteState[category]));
+  if (!isComplete) return false;
+
+  categories.forEach(category => { state[category] = remoteState[category]; });
+  savedState = { ...state };
+  savedAt = data.updatedAt && typeof data.updatedAt.toDate === "function"
+    ? data.updatedAt.toDate()
+    : null;
+  return true;
+}
+
+async function startCloudSync(){
   try {
-    const res = await fetch(SHARED_URL);
-    if (res.ok) {
-      const saved = await res.json();
-      if (saved && saved.state) {
-        categories.forEach(c => { if (saved.state[c]) state[c] = saved.state[c]; });
-        savedState = { ...state };
-        savedAt = saved.savedAt || null;
+    await signInAnonymously(auth);
+    firebaseReady = true;
+
+    onSnapshot(wheelRef, { includeMetadataChanges:true }, snapshot => {
+      if (snapshot.metadata.hasPendingWrites) return;
+
+      syncStatus = "ready";
+      syncError = "";
+
+      if (snapshot.exists()) {
+        applyRemoteResult(snapshot.data());
+      } else {
+        savedState = null;
+        savedAt = null;
       }
-    }
+
+      document.getElementById('saveBtn').disabled = false;
+      render();
+    }, error => {
+      console.error('Firebase sync failed', error);
+      syncStatus = "error";
+      syncError = "Cloud connection unavailable — check Firebase setup";
+      document.getElementById('saveBtn').disabled = true;
+      renderStatus();
+    });
   } catch(e) {
-    console.warn('Не удалось загрузить общий результат', e);
+    console.error('Firebase authentication failed', e);
+    syncStatus = "error";
+    syncError = "Cloud connection unavailable — check Firebase setup";
+    document.getElementById('saveBtn').disabled = true;
+    renderStatus();
   }
-  render();
 }
 
 function polar(angleDeg, r){
@@ -268,7 +330,19 @@ function render(){
 function renderStatus(){
   const line = document.getElementById('statusLine');
   const text = document.getElementById('statusText');
-  line.classList.remove('saved', 'dirty');
+  line.classList.remove('saved', 'dirty', 'loading', 'error');
+
+  if (syncStatus === 'loading' || syncStatus === 'saving'){
+    line.classList.add('loading');
+    text.textContent = syncStatus === 'saving' ? 'Saving to cloud…' : 'Connecting to cloud…';
+    return;
+  }
+
+  if (syncStatus === 'error'){
+    line.classList.add('error');
+    text.textContent = syncError || 'Cloud connection unavailable';
+    return;
+  }
 
   if (!savedState){
     text.textContent = 'Not saved yet — pick your levels, then press Save';
@@ -281,7 +355,9 @@ function renderStatus(){
     text.textContent = 'Unsaved changes — press Save to update your result';
   } else {
     line.classList.add('saved');
-    const dateStr = savedAt ? new Date(savedAt).toLocaleDateString(undefined, { day:'numeric', month:'short', year:'numeric' }) : '';
+    const dateStr = savedAt ? new Intl.DateTimeFormat(undefined, {
+      day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'
+    }).format(savedAt) : '';
     text.textContent = dateStr ? `Saved — last updated ${dateStr}` : 'Saved';
   }
 }
@@ -330,24 +406,33 @@ document.getElementById('resetBtn').addEventListener('click', () => {
   render();
 });
 document.getElementById('saveBtn').addEventListener('click', async () => {
-  const now = new Date().toISOString();
   const btn = document.getElementById('saveBtn');
   const original = btn.textContent;
+
+  if (!firebaseReady) return;
+
+  const stateToSave = { ...state };
+  syncStatus = 'saving';
+  syncError = '';
   btn.textContent = 'Saving…';
   btn.disabled = true;
+  renderStatus();
+
   try {
-    await fetch(SHARED_URL, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ state, savedAt: now })
+    await setDoc(wheelRef, {
+      state: stateToSave,
+      updatedAt: serverTimestamp()
     });
-    savedState = { ...state };
-    savedAt = now;
+    savedState = stateToSave;
+    syncStatus = 'ready';
     btn.textContent = 'Saved';
   } catch(e) {
-    console.warn('Не удалось сохранить общий результат', e);
-    btn.textContent = 'Ошибка, попробуйте ещё раз';
+    console.error('Firebase save failed', e);
+    syncStatus = 'error';
+    syncError = 'Could not save — please try again';
+    btn.textContent = 'Error';
   }
+
   renderStatus();
   btn.disabled = false;
   setTimeout(() => btn.textContent = original, 1500);
@@ -355,8 +440,8 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
 
 buildStatic();
 buildInteractive();
-document.getElementById('statusText').textContent = 'Загрузка…';
-loadShared();
+render();
+startCloudSync();
 </script>
 </body>
 </html>
