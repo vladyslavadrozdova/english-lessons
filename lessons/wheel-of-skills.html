@@ -269,6 +269,8 @@ let savedAt = null;
 let syncStatus = "loading";
 let syncError = "";
 let firebaseReady = false;
+let firebaseReadyResolve;
+const firebaseReadyPromise = new Promise((res) => { firebaseReadyResolve = res; });
 
 function validLevel(value){
   return Number.isInteger(value) && value >= 1 && value <= 10;
@@ -326,15 +328,18 @@ function renderReflectionFields(){
     statusEl.classList.add('visible');
     clearTimeout(saveTimer);
     saveTimer = setTimeout(async () => {
-      if (!firebaseReady) return;
       try {
+        await Promise.race([
+          firebaseReadyPromise,
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Connection timeout')), 8000))
+        ]);
         await setDoc(wheelRef, { reflection: reflectAnswers, reflectionUpdatedAt: serverTimestamp() }, { merge: true });
         statusText.textContent = 'Saved automatically as you type';
       } catch(err) {
         console.error('Reflection save failed', err);
-        statusText.textContent = 'Could not save — check connection';
+        statusText.textContent = 'Could not save — check your connection';
       }
-      setTimeout(() => statusEl.classList.remove('visible'), 1200);
+      setTimeout(() => statusEl.classList.remove('visible'), 1500);
     }, 700);
   });
 }
@@ -343,6 +348,7 @@ async function startCloudSync(){
   try {
     await signInAnonymously(auth);
     firebaseReady = true;
+    firebaseReadyResolve();
 
     onSnapshot(wheelRef, { includeMetadataChanges:true }, snapshot => {
       if (snapshot.metadata.hasPendingWrites) return;
@@ -575,6 +581,7 @@ renderReflectionFields();
 </script>
 </body>
 </html>
+
 
 
 
