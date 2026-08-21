@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wheel of balance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --dark:#151311;
+    --cream:#F2EBDC;
+    --card:#FFFFFF;
+    --ink:#171512;
+    --muted:#6E695D;
+    --line:#E4DECC;
+    --accent:#C86EAA;
+    --accent-deep:#A9548B;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0; background:var(--dark);}
+  body{ font-family:'Inter', sans-serif; font-weight:400; }
+
+  .dark-wrap{
+    padding:70px 24px 60px;
+    text-align:center;
+    background:
+      radial-gradient(ellipse 700px 400px at 50% 0%, #302C27 0%, transparent 60%),
+      var(--dark);
+  }
+  h1{
+    font-family:'Playfair Display', serif; font-weight:600; text-transform:uppercase;
+    font-size:38px; letter-spacing:0.04em; color:var(--cream); margin:0 0 14px;
+  }
+  .lede{
+    font-family:'Playfair Display', serif; font-style:italic; font-weight:500;
+    font-size:19px; color:#C9C3B3; max-width:520px; margin:0 auto 12px; line-height:1.5;
+  }
+  .sub{
+    font-size:13px; color:#8B8578; max-width:460px; margin:0 auto; line-height:1.7;
+  }
+
+  .card-wrap{ max-width:700px; margin:-30px auto 0; padding:0 20px 70px; }
+  .card{
+    background:var(--card); border-radius:18px; padding:40px 36px 34px;
+    box-shadow:0 30px 60px rgba(0,0,0,0.35);
+  }
+
+  svg#wheelSvg{ display:block; width:100%; max-width:560px; margin:0 auto; height:auto; }
+  .sector-hit{ fill:transparent; cursor:pointer; transition:fill 0.15s ease; }
+  .sector-hit:hover{ fill:rgba(200,110,170,0.08); }
+  .cat-label{ font-family:'Inter', sans-serif; font-weight:700; font-size:16.5px; letter-spacing:0.02em; fill:var(--ink); pointer-events:none; }
+  .tick-label{ font-family:'Inter', sans-serif; font-size:11px; fill:var(--muted); pointer-events:none; }
+
+  .status{
+    display:flex; align-items:center; gap:8px; justify-content:center;
+    font-family:'Inter', sans-serif; font-weight:500; font-size:12.5px;
+    color:var(--muted); margin-bottom:22px;
+  }
+  .status .dot{ width:7px; height:7px; border-radius:50%; background:var(--muted); flex-shrink:0; }
+  .status.saved{ color:var(--accent-deep); }
+  .status.saved .dot{ background:var(--accent); }
+  .status.dirty{ color:#B08A2E; }
+  .status.dirty .dot{ background:#D7A23D; }
+
+  .panel-title{
+    display:flex; justify-content:space-between; align-items:center;
+    font-family:'Inter', sans-serif; font-weight:600; font-size:11.5px;
+    letter-spacing:0.12em; text-transform:uppercase; color:var(--muted);
+    margin-top:8px; margin-bottom:14px;
+  }
+  .panel-title .avg{ color:var(--accent); font-size:13px; }
+
+  .rows{ margin-bottom:8px; }
+  .row{
+    display:grid; grid-template-columns:150px 1fr auto; align-items:center;
+    gap:14px; padding:12px 0; border-bottom:1px solid var(--line); cursor:pointer;
+  }
+  .row:last-child{ border-bottom:none; }
+  .row-name{ font-family:'Inter', sans-serif; font-weight:700; font-size:13px; text-transform:uppercase; }
+  .row-track{ position:relative; height:1px; background:var(--line); }
+  .row-fill{ position:absolute; top:-1px; left:0; height:3px; background:var(--accent); transition:width 0.2s ease; }
+  .row-value{ font-family:'Inter', sans-serif; font-weight:600; font-size:13px; color:var(--accent); }
+
+  .actions{ display:flex; justify-content:center; gap:12px; margin-top:28px; }
+  button.btn{
+    font-family:'Inter', sans-serif; font-weight:700; font-size:12px;
+    letter-spacing:0.06em; text-transform:uppercase; background:transparent;
+    border:1.5px solid var(--ink); color:var(--ink); padding:12px 24px; cursor:pointer;
+    border-radius:999px; transition:background 0.15s ease, color 0.15s ease;
+  }
+  button.btn:hover{ background:var(--ink); color:#fff; }
+  button.btn.primary{ background:var(--accent); border-color:var(--accent); color:#fff; }
+  button.btn.primary:hover{ background:var(--accent-deep); border-color:var(--accent-deep); }
+
+  .overlay{
+    position:fixed; inset:0; background:rgba(20,18,16,0.55); backdrop-filter:blur(2px);
+    display:none; align-items:center; justify-content:center; z-index:100; padding:20px;
+  }
+  .overlay.open{ display:flex; }
+  .picker{ background:#fff; border-radius:16px; padding:28px 26px; max-width:320px; width:100%; position:relative; }
+  .picker-eyebrow{ font-family:'Inter', sans-serif; font-weight:700; font-size:10.5px; letter-spacing:0.14em; text-transform:uppercase; color:var(--accent); margin-bottom:6px; }
+  .picker-title{ font-family:'Playfair Display', serif; font-style:italic; font-size:24px; margin:0 0 18px; color:var(--ink); }
+  .picker-grid{ display:grid; grid-template-columns:repeat(5, 1fr); gap:8px; }
+  .num-btn{
+    aspect-ratio:1; border:1px solid var(--line); background:var(--cream); color:var(--ink);
+    font-family:'Inter', sans-serif; font-weight:600; font-size:14px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; border-radius:8px;
+    transition:background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+  }
+  .num-btn:hover{ border-color:var(--accent); }
+  .num-btn.active{ background:var(--accent); border-color:var(--accent); color:#fff; }
+  .picker-close{ position:absolute; top:12px; right:14px; background:none; border:none; color:var(--muted); font-size:18px; cursor:pointer; line-height:1; }
+  .picker-close:hover{ color:var(--ink); }
+
+  @media (max-width:600px){
+    h1{ font-size:28px; }
+    .lede{ font-size:16px; }
+    .card{ padding:30px 22px 26px; }
+    .row{ grid-template-columns:110px 1fr auto; gap:10px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="dark-wrap">
+  <h1>Wheel of balance</h1>
+  <p class="lede">A quick, honest snapshot of where your English stands right now.</p>
+  <p class="sub">Tap a slice of the wheel below and pick a number from one to ten for each of the eight skills. The shape that appears is your real, current profile — nothing more to do than that.</p>
+</div>
+
+<div class="card-wrap">
+  <div class="card">
+    <div class="status" id="statusLine"><span class="dot"></span><span id="statusText">Not saved yet</span></div>
+    <svg id="wheelSvg" viewBox="0 0 680 680" role="img" aria-label="Interactive skills wheel — tap a sector to rate it"></svg>
+
+    <div class="panel-title"><span>Profile</span><span class="avg" id="avg">average — 5.0</span></div>
+    <div class="rows" id="rows"></div>
+
+    <div class="actions">
+      <button class="btn" id="resetBtn">Reset</button>
+      <button class="btn primary" id="saveBtn">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="picker">
+    <button class="picker-close" id="pickerClose">&times;</button>
+    <div class="picker-eyebrow">Rate this skill</div>
+    <div class="picker-title" id="pickerTitle">Listening</div>
+    <div class="picker-grid" id="pickerGrid"></div>
+  </div>
+</div>
+
+<script>
+const categories = ["Listening","Reading","Speaking","Vocabulary","Pronunciation","Grammar","Writing","Confidence"];
+const cx = 340, cy = 340, outerR = 234, levels = 10, spacing = outerR / levels;
+const labelR = 278;
+const STORAGE_KEY = 'wheelOfSkillsLevels';
+const STORAGE_TS_KEY = 'wheelOfSkillsSavedAt';
+
+let state = {};
+categories.forEach(c => state[c] = 5);
+
+let savedState = null;
+let savedAt = null;
+try {
+  const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+  if (saved) {
+    categories.forEach(c => { if (saved[c]) state[c] = saved[c]; });
+    savedState = { ...state };
+    savedAt = localStorage.getItem(STORAGE_TS_KEY);
+  }
+} catch(e) {}
+
+function polar(angleDeg, r){
+  const rad = angleDeg * Math.PI / 180;
+  return { x: cx + r * Math.sin(rad), y: cy - r * Math.cos(rad) };
+}
+function angleCenter(i){ return 22.5 + 45 * i; }
+
+const svg = document.getElementById('wheelSvg');
+const NS = 'http://www.w3.org/2000/svg';
+function el(tag, attrs){
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  return e;
+}
+function sectorPath(startAngle, endAngle, r){
+  const p1 = polar(startAngle, r);
+  const p2 = polar(endAngle, r);
+  return `M ${cx} ${cy} L ${p1.x} ${p1.y} A ${r} ${r} 0 0 1 ${p2.x} ${p2.y} Z`;
+}
+
+function buildStatic(){
+  for (let lvl = 1; lvl <= levels; lvl++){
+    svg.appendChild(el('circle', { cx, cy, r: spacing*lvl, fill:'none', stroke:'var(--line)', 'stroke-width': lvl===levels ? 1 : 0.6, 'pointer-events':'none' }));
+  }
+  for (let i = 0; i < 8; i++){
+    const p = polar(45 * i, outerR);
+    svg.appendChild(el('line', { x1:cx, y1:cy, x2:p.x, y2:p.y, stroke:'var(--line)', 'stroke-width':0.6, 'pointer-events':'none' }));
+  }
+  for (let lvl = 2; lvl <= levels; lvl += 2){
+    const p = polar(22.5, spacing*lvl);
+    const t = el('text', { x:p.x+11, y:p.y+3, class:'tick-label' });
+    t.textContent = lvl;
+    svg.appendChild(t);
+  }
+}
+
+let polygon, dotsGroup;
+
+function buildInteractive(){
+  categories.forEach((cat, i) => {
+    const hit = el('path', { d: sectorPath(45*i, 45*(i+1), outerR), class:'sector-hit', 'data-cat':cat });
+    hit.addEventListener('click', () => openPicker(cat));
+    svg.appendChild(hit);
+  });
+
+  polygon = el('polygon', { fill:'rgba(200,110,170,0.16)', stroke:'var(--accent)', 'stroke-width':1.5, 'pointer-events':'none' });
+  svg.appendChild(polygon);
+
+  dotsGroup = el('g', { 'pointer-events':'none' });
+  svg.appendChild(dotsGroup);
+  categories.forEach(cat => {
+    const dot = el('circle', { r:5, fill:'var(--accent)', stroke:'#fff', 'stroke-width':1.5, 'data-cat':cat });
+    dotsGroup.appendChild(dot);
+  });
+
+  categories.forEach((cat, i) => {
+    const a = angleCenter(i);
+    const flip = (a > 90 && a < 270);
+    const rot = flip ? (a + 180) % 360 : a;
+    const p = polar(a, labelR);
+    const g = el('g', { transform:`rotate(${rot} ${p.x} ${p.y})`, 'pointer-events':'none' });
+    const t = el('text', { x:p.x, y:p.y, 'text-anchor':'middle', 'dominant-baseline':'central', class:'cat-label' });
+    t.textContent = cat;
+    g.appendChild(t);
+    svg.appendChild(g);
+  });
+}
+
+function render(){
+  const pts = categories.map((cat, i) => polar(angleCenter(i), spacing * state[cat]));
+  polygon.setAttribute('points', pts.map(p => `${p.x},${p.y}`).join(' '));
+  dotsGroup.querySelectorAll('circle').forEach(dot => {
+    const cat = dot.getAttribute('data-cat');
+    const p = polar(angleCenter(categories.indexOf(cat)), spacing * state[cat]);
+    dot.setAttribute('cx', p.x);
+    dot.setAttribute('cy', p.y);
+  });
+  renderRows();
+  renderStatus();
+}
+
+function renderStatus(){
+  const line = document.getElementById('statusLine');
+  const text = document.getElementById('statusText');
+  line.classList.remove('saved', 'dirty');
+
+  if (!savedState){
+    text.textContent = 'Not saved yet — pick your levels, then press Save';
+    return;
+  }
+
+  const isDirty = categories.some(c => state[c] !== savedState[c]);
+  if (isDirty){
+    line.classList.add('dirty');
+    text.textContent = 'Unsaved changes — press Save to update your result';
+  } else {
+    line.classList.add('saved');
+    const dateStr = savedAt ? new Date(savedAt).toLocaleDateString(undefined, { day:'numeric', month:'short', year:'numeric' }) : '';
+    text.textContent = dateStr ? `Saved — last updated ${dateStr}` : 'Saved';
+  }
+}
+
+function renderRows(){
+  const rows = document.getElementById('rows');
+  rows.innerHTML = '';
+  categories.forEach(cat => {
+    const row = document.createElement('div');
+    row.className = 'row';
+    row.innerHTML = `
+      <div class="row-name">${cat}</div>
+      <div class="row-track"><div class="row-fill" style="width:${state[cat]*10}%"></div></div>
+      <div class="row-value">${state[cat]}</div>
+    `;
+    row.addEventListener('click', () => openPicker(cat));
+    rows.appendChild(row);
+  });
+  const avg = (categories.reduce((s,c) => s + state[c], 0) / categories.length).toFixed(1);
+  document.getElementById('avg').textContent = `average — ${avg}`;
+}
+
+const overlay = document.getElementById('overlay');
+const pickerTitle = document.getElementById('pickerTitle');
+const pickerGrid = document.getElementById('pickerGrid');
+
+function openPicker(cat){
+  pickerTitle.textContent = cat;
+  pickerGrid.innerHTML = '';
+  for (let n = 1; n <= 10; n++){
+    const b = document.createElement('button');
+    b.className = 'num-btn' + (state[cat] === n ? ' active' : '');
+    b.textContent = n;
+    b.addEventListener('click', () => { state[cat] = n; render(); closePicker(); });
+    pickerGrid.appendChild(b);
+  }
+  overlay.classList.add('open');
+}
+function closePicker(){ overlay.classList.remove('open'); }
+document.getElementById('pickerClose').addEventListener('click', closePicker);
+overlay.addEventListener('click', (e) => { if (e.target === overlay) closePicker(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePicker(); });
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  categories.forEach(c => state[c] = 5);
+  render();
+});
+document.getElementById('saveBtn').addEventListener('click', () => {
+  const now = new Date().toISOString();
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    localStorage.setItem(STORAGE_TS_KEY, now);
+  } catch(e) {}
+  savedState = { ...state };
+  savedAt = now;
+  renderStatus();
+  const btn = document.getElementById('saveBtn');
+  const original = btn.textContent;
+  btn.textContent = 'Saved';
+  setTimeout(() => btn.textContent = original, 1200);
+});
+
+buildStatic();
+buildInteractive();
+render();
+</script>
+</body>
+</html>
