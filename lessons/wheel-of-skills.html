@@ -224,54 +224,6 @@
   </div>
 </div>
 
-<script>
-const reflectQuestions = [
-  "What English skill do you want to improve the most?",
-  "What exactly do you want to be able to do in English?",
-  "In what situations do you want to use English?",
-  "How will great knowledge of English help you in your life or career?",
-  "What specific result will show that you've succeeded? Imagine what kind of result you want to get in 6 months?",
-  "How much time would you like to spend on learning English per week?",
-  "What resources do you already have?",
-  "When do you want to achieve this goal?",
-  "How much time do you think you need?",
-  "Do you have a deadline?"
-];
-const REFLECT_KEY = 'wheelOfSkillsReflection';
-
-(function initReflection(){
-  let saved = {};
-  try { saved = JSON.parse(localStorage.getItem(REFLECT_KEY)) || {}; } catch(e){}
-
-  const list = document.getElementById('reflectList');
-  reflectQuestions.forEach((q, i) => {
-    const item = document.createElement('div');
-    item.className = 'reflect-item';
-    item.innerHTML = `
-      <div class="reflect-num">Question ${i + 1} of ${reflectQuestions.length}</div>
-      <p class="reflect-q">${q}</p>
-      <textarea class="reflect-a" data-idx="${i}" placeholder="Type your answer here…">${saved[i] ? saved[i] : ''}</textarea>
-    `;
-    list.appendChild(item);
-  });
-
-  const statusEl = document.getElementById('reflectStatus');
-  let saveTimer = null;
-  list.addEventListener('input', (e) => {
-    if (!e.target.classList.contains('reflect-a')) return;
-    const idx = e.target.getAttribute('data-idx');
-    let current = {};
-    try { current = JSON.parse(localStorage.getItem(REFLECT_KEY)) || {}; } catch(err){}
-    current[idx] = e.target.value;
-    localStorage.setItem(REFLECT_KEY, JSON.stringify(current));
-
-    statusEl.classList.add('visible');
-    clearTimeout(saveTimer);
-    saveTimer = setTimeout(() => statusEl.classList.remove('visible'), 1400);
-  });
-})();
-</script>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
 import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
@@ -290,6 +242,20 @@ const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth(firebaseApp);
 const db = getFirestore(firebaseApp);
 const wheelRef = doc(db, "wheels", "shared-wheel");
+
+const reflectQuestions = [
+  "What English skill do you want to improve the most?",
+  "What exactly do you want to be able to do in English?",
+  "In what situations do you want to use English?",
+  "How will great knowledge of English help you in your life or career?",
+  "What specific result will show that you've succeeded? Imagine what kind of result you want to get in 6 months?",
+  "How much time would you like to spend on learning English per week?",
+  "What resources do you already have?",
+  "When do you want to achieve this goal?",
+  "How much time do you think you need?",
+  "Do you have a deadline?"
+];
+let reflectAnswers = {};
 
 const categories = ["Listening","Reading","Speaking","Vocabulary","Pronunciation","Grammar","Writing","Confidence"];
 const cx = 340, cy = 340, outerR = 234, levels = 10, spacing = outerR / levels;
@@ -310,17 +276,67 @@ function validLevel(value){
 
 function applyRemoteResult(data){
   const remoteState = data && data.state;
-  if (!remoteState || typeof remoteState !== "object") return false;
+  if (remoteState && typeof remoteState === "object") {
+    const isComplete = categories.every(category => validLevel(remoteState[category]));
+    if (isComplete) {
+      categories.forEach(category => { state[category] = remoteState[category]; });
+      savedState = { ...state };
+      savedAt = data.updatedAt && typeof data.updatedAt.toDate === "function"
+        ? data.updatedAt.toDate()
+        : null;
+    }
+  }
 
-  const isComplete = categories.every(category => validLevel(remoteState[category]));
-  if (!isComplete) return false;
-
-  categories.forEach(category => { state[category] = remoteState[category]; });
-  savedState = { ...state };
-  savedAt = data.updatedAt && typeof data.updatedAt.toDate === "function"
-    ? data.updatedAt.toDate()
-    : null;
+  const remoteReflection = data && data.reflection;
+  if (remoteReflection && typeof remoteReflection === "object") {
+    reflectAnswers = { ...remoteReflection };
+    reflectQuestions.forEach((q, i) => {
+      const ta = document.querySelector('.reflect-a[data-idx="' + i + '"]');
+      if (ta && document.activeElement !== ta && ta.value !== (remoteReflection[i] || '')) {
+        ta.value = remoteReflection[i] || '';
+      }
+    });
+  }
   return true;
+}
+
+function renderReflectionFields(){
+  const list = document.getElementById('reflectList');
+  if (list.children.length) return;
+  reflectQuestions.forEach((q, i) => {
+    const item = document.createElement('div');
+    item.className = 'reflect-item';
+    item.innerHTML = `
+      <div class="reflect-num">Question ${i + 1} of ${reflectQuestions.length}</div>
+      <p class="reflect-q">${q}</p>
+      <textarea class="reflect-a" data-idx="${i}" placeholder="Type your answer here…">${reflectAnswers[i] ? reflectAnswers[i] : ''}</textarea>
+    `;
+    list.appendChild(item);
+  });
+
+  const statusEl = document.getElementById('reflectStatus');
+  const statusText = document.getElementById('reflectStatusText');
+  let saveTimer = null;
+  list.addEventListener('input', (e) => {
+    if (!e.target.classList.contains('reflect-a')) return;
+    const idx = e.target.getAttribute('data-idx');
+    reflectAnswers[idx] = e.target.value;
+
+    statusText.textContent = 'Saving…';
+    statusEl.classList.add('visible');
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(async () => {
+      if (!firebaseReady) return;
+      try {
+        await setDoc(wheelRef, { reflection: reflectAnswers, reflectionUpdatedAt: serverTimestamp() }, { merge: true });
+        statusText.textContent = 'Saved automatically as you type';
+      } catch(err) {
+        console.error('Reflection save failed', err);
+        statusText.textContent = 'Could not save — check connection';
+      }
+      setTimeout(() => statusEl.classList.remove('visible'), 1200);
+    }, 700);
+  });
 }
 
 async function startCloudSync(){
@@ -341,6 +357,7 @@ async function startCloudSync(){
         savedAt = null;
       }
 
+      renderReflectionFields();
       document.getElementById('saveBtn').disabled = false;
       render();
     }, error => {
@@ -557,4 +574,5 @@ startCloudSync();
 </script>
 </body>
 </html>
+
 
