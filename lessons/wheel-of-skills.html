@@ -6,6 +6,9 @@
 <title>Wheel of balance</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://identitytoolkit.googleapis.com">
+<link rel="preconnect" href="https://firestore.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -186,11 +189,11 @@
   <div class="reflect-card">
     <div class="reflect-eyebrow">Before you start</div>
     <h2 class="reflect-title">A few questions for yourself</h2>
-    <p class="reflect-sub">Take a moment to write honest answers — there's no right length, just your own words. Your answers are saved automatically in this browser.</p>
+    <p class="reflect-sub">Take a moment to write honest answers — there's no right length, just your own words. The Save button below stores your answers and skills together.</p>
 
     <div id="reflectList"></div>
 
-    <div class="reflect-status" id="reflectStatus"><span class="dot"></span><span id="reflectStatusText">Saved automatically as you type</span></div>
+    <div class="reflect-status visible" id="reflectStatus"><span class="dot"></span><span id="reflectStatusText">Your answers will be saved with your profile</span></div>
   </div>
 </div>
 
@@ -224,11 +227,7 @@
   </div>
 </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
-import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
-import { doc, getFirestore, onSnapshot, serverTimestamp, setDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
-
+<script>
 const firebaseConfig = {
   apiKey: "AIzaSyBRN7DCQo6l0zoczP3UnewppmJmubyDNq8",
   authDomain: "lesson-v1-de126.firebaseapp.com",
@@ -237,11 +236,6 @@ const firebaseConfig = {
   messagingSenderId: "304810384648",
   appId: "1:304810384648:web:cc15bc54cb56648a4c60bd"
 };
-
-const firebaseApp = initializeApp(firebaseConfig);
-const auth = getAuth(firebaseApp);
-const db = getFirestore(firebaseApp);
-const wheelRef = doc(db, "wheels", "shared-wheel");
 
 const reflectQuestions = [
   "What English skill do you want to improve the most?",
@@ -256,10 +250,13 @@ const reflectQuestions = [
   "Do you have a deadline?"
 ];
 let reflectAnswers = {};
+reflectQuestions.forEach((_, i) => { reflectAnswers[String(i)] = ""; });
+let savedReflection = null;
 
 const categories = ["Listening","Reading","Speaking","Vocabulary","Pronunciation","Grammar","Writing","Confidence"];
 const cx = 340, cy = 340, outerR = 234, levels = 10, spacing = outerR / levels;
 const labelR = 278;
+const CACHE_KEY = "wheelOfSkillsCloudCacheV2";
 
 let state = {};
 categories.forEach(c => state[c] = 5);
@@ -269,11 +266,42 @@ let savedAt = null;
 let syncStatus = "loading";
 let syncError = "";
 let firebaseReady = false;
-let firebaseReadyResolve;
-const firebaseReadyPromise = new Promise((res) => { firebaseReadyResolve = res; });
+let wheelRef = null;
+let setDoc = null;
+let serverTimestamp = null;
 
 function validLevel(value){
   return Number.isInteger(value) && value >= 1 && value <= 10;
+}
+
+function normalizedReflection(source = {}){
+  const result = {};
+  reflectQuestions.forEach((_, i) => {
+    result[String(i)] = typeof source[i] === "string" ? source[i].slice(0, 4000) : "";
+  });
+  return result;
+}
+
+function cacheResult(){
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify({
+      state,
+      reflection: reflectAnswers,
+      savedAt: savedAt instanceof Date ? savedAt.toISOString() : null
+    }));
+  } catch(e) {}
+}
+
+function loadCachedResult(){
+  try {
+    const cached = JSON.parse(localStorage.getItem(CACHE_KEY));
+    if (!cached || !cached.state || !categories.every(c => validLevel(cached.state[c]))) return;
+    categories.forEach(c => { state[c] = cached.state[c]; });
+    savedState = { ...state };
+    reflectAnswers = normalizedReflection(cached.reflection);
+    savedReflection = { ...reflectAnswers };
+    savedAt = cached.savedAt ? new Date(cached.savedAt) : null;
+  } catch(e) {}
 }
 
 function applyRemoteResult(data){
@@ -291,14 +319,19 @@ function applyRemoteResult(data){
 
   const remoteReflection = data && data.reflection;
   if (remoteReflection && typeof remoteReflection === "object") {
-    reflectAnswers = { ...remoteReflection };
+    reflectAnswers = normalizedReflection(remoteReflection);
+    savedReflection = { ...reflectAnswers };
     reflectQuestions.forEach((q, i) => {
       const ta = document.querySelector('.reflect-a[data-idx="' + i + '"]');
       if (ta && document.activeElement !== ta && ta.value !== (remoteReflection[i] || '')) {
         ta.value = remoteReflection[i] || '';
       }
     });
+  } else {
+    reflectAnswers = normalizedReflection();
+    savedReflection = { ...reflectAnswers };
   }
+  cacheResult();
   return true;
 }
 
@@ -311,46 +344,39 @@ function renderReflectionFields(){
     item.innerHTML = `
       <div class="reflect-num">Question ${i + 1} of ${reflectQuestions.length}</div>
       <p class="reflect-q">${q}</p>
-      <textarea class="reflect-a" data-idx="${i}" placeholder="Type your answer here…">${reflectAnswers[i] ? reflectAnswers[i] : ''}</textarea>
+      <textarea class="reflect-a" data-idx="${i}" maxlength="4000" placeholder="Type your answer here…">${reflectAnswers[i] ? reflectAnswers[i] : ''}</textarea>
     `;
     list.appendChild(item);
   });
 
-  const statusEl = document.getElementById('reflectStatus');
   const statusText = document.getElementById('reflectStatusText');
-  let saveTimer = null;
   list.addEventListener('input', (e) => {
     if (!e.target.classList.contains('reflect-a')) return;
     const idx = e.target.getAttribute('data-idx');
     reflectAnswers[idx] = e.target.value;
-
-    statusText.textContent = 'Saving…';
-    statusEl.classList.add('visible');
-    clearTimeout(saveTimer);
-    saveTimer = setTimeout(async () => {
-      try {
-        await Promise.race([
-          firebaseReadyPromise,
-          new Promise((_, reject) => setTimeout(() => reject(new Error('Connection timeout')), 8000))
-        ]);
-        await setDoc(wheelRef, { reflection: reflectAnswers, reflectionUpdatedAt: serverTimestamp() }, { merge: true });
-        statusText.textContent = 'Saved automatically as you type';
-      } catch(err) {
-        console.error('Reflection save failed', err);
-        statusText.textContent = 'Could not save — check your connection';
-      }
-      setTimeout(() => statusEl.classList.remove('visible'), 1500);
-    }, 700);
+    statusText.textContent = 'Unsaved answer — press Save below';
+    renderStatus();
   });
 }
 
 async function startCloudSync(){
   try {
-    await signInAnonymously(auth);
-    firebaseReady = true;
-    firebaseReadyResolve();
+    const [appModule, authModule, firestoreModule] = await Promise.all([
+      import("https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js"),
+      import("https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js"),
+      import("https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js")
+    ]);
+    const firebaseApp = appModule.initializeApp(firebaseConfig);
+    const auth = authModule.getAuth(firebaseApp);
+    const db = firestoreModule.getFirestore(firebaseApp);
+    wheelRef = firestoreModule.doc(db, "wheels", "shared-wheel");
+    setDoc = firestoreModule.setDoc;
+    serverTimestamp = firestoreModule.serverTimestamp;
 
-    onSnapshot(wheelRef, { includeMetadataChanges:true }, snapshot => {
+    await authModule.signInAnonymously(auth);
+    firebaseReady = true;
+
+    firestoreModule.onSnapshot(wheelRef, { includeMetadataChanges:true }, snapshot => {
       if (snapshot.metadata.hasPendingWrites) return;
 
       syncStatus = "ready";
@@ -484,7 +510,11 @@ function renderStatus(){
     return;
   }
 
-  const isDirty = categories.some(c => state[c] !== savedState[c]);
+  const stateIsDirty = categories.some(c => state[c] !== savedState[c]);
+  const reflectionIsDirty = !savedReflection || reflectQuestions.some((_, i) =>
+    reflectAnswers[i] !== savedReflection[i]
+  );
+  const isDirty = stateIsDirty || reflectionIsDirty;
   if (isDirty){
     line.classList.add('dirty');
     text.textContent = 'Unsaved changes — press Save to update your result';
@@ -547,6 +577,7 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
   if (!firebaseReady) return;
 
   const stateToSave = { ...state };
+  const reflectionToSave = normalizedReflection(reflectAnswers);
   syncStatus = 'saving';
   syncError = '';
   btn.textContent = 'Saving…';
@@ -556,11 +587,17 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
   try {
     await setDoc(wheelRef, {
       state: stateToSave,
+      reflection: reflectionToSave,
       updatedAt: serverTimestamp()
-    }, { merge: true });
+    });
     savedState = stateToSave;
+    reflectAnswers = reflectionToSave;
+    savedReflection = { ...reflectionToSave };
+    savedAt = new Date();
+    cacheResult();
     syncStatus = 'ready';
     btn.textContent = 'Saved';
+    document.getElementById('reflectStatusText').textContent = 'Answers saved with your profile';
   } catch(e) {
     console.error('Firebase save failed', e);
     syncStatus = 'error';
@@ -575,13 +612,10 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
 
 buildStatic();
 buildInteractive();
+loadCachedResult();
 render();
-startCloudSync();
 renderReflectionFields();
+startCloudSync();
 </script>
 </body>
 </html>
-
-
-
-
