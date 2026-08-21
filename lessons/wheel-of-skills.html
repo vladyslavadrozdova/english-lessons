@@ -551,7 +551,7 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
     await setDoc(wheelRef, {
       state: stateToSave,
       updatedAt: serverTimestamp()
-    });
+    }, { merge: true });
     savedState = stateToSave;
     syncStatus = 'ready';
     btn.textContent = 'Saved';
@@ -571,8 +571,10 @@ buildStatic();
 buildInteractive();
 render();
 startCloudSync();
+renderReflectionFields();
 </script>
 </body>
 </html>
+
 
 
