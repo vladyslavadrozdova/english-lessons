@@ -6,6 +6,9 @@
 <title>Wheel of balance</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://identitytoolkit.googleapis.com">
+<link rel="preconnect" href="https://firestore.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -160,11 +163,7 @@
   </div>
 </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
-import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
-import { doc, getFirestore, onSnapshot, serverTimestamp, setDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
-
+<script>
 const firebaseConfig = {
   apiKey: "AIzaSyBRN7DCQo6l0zoczP3UnewppmJmubyDNq8",
   authDomain: "lesson-v1-de126.firebaseapp.com",
@@ -174,14 +173,10 @@ const firebaseConfig = {
   appId: "1:304810384648:web:cc15bc54cb56648a4c60bd"
 };
 
-const firebaseApp = initializeApp(firebaseConfig);
-const auth = getAuth(firebaseApp);
-const db = getFirestore(firebaseApp);
-const wheelRef = doc(db, "wheels", "shared-wheel");
-
 const categories = ["Listening","Reading","Speaking","Vocabulary","Pronunciation","Grammar","Writing","Confidence"];
 const cx = 340, cy = 340, outerR = 234, levels = 10, spacing = outerR / levels;
 const labelR = 278;
+const CACHE_KEY = "wheelOfSkillsCloudCacheV1";
 
 let state = {};
 categories.forEach(c => state[c] = 5);
@@ -191,9 +186,37 @@ let savedAt = null;
 let syncStatus = "loading";
 let syncError = "";
 let firebaseReady = false;
+let wheelRef = null;
+let setDoc = null;
+let serverTimestamp = null;
 
 function validLevel(value){
   return Number.isInteger(value) && value >= 1 && value <= 10;
+}
+
+function cacheResult(resultState, resultDate){
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify({
+      state: resultState,
+      savedAt: resultDate instanceof Date ? resultDate.toISOString() : null
+    }));
+  } catch(e) {}
+}
+
+function loadCachedResult(){
+  try {
+    const cached = JSON.parse(localStorage.getItem(CACHE_KEY));
+    const isComplete = cached && cached.state
+      && categories.every(category => validLevel(cached.state[category]));
+    if (!isComplete) return false;
+
+    categories.forEach(category => { state[category] = cached.state[category]; });
+    savedState = { ...state };
+    savedAt = cached.savedAt ? new Date(cached.savedAt) : null;
+    return true;
+  } catch(e) {
+    return false;
+  }
 }
 
 function applyRemoteResult(data){
@@ -208,15 +231,29 @@ function applyRemoteResult(data){
   savedAt = data.updatedAt && typeof data.updatedAt.toDate === "function"
     ? data.updatedAt.toDate()
     : null;
+  cacheResult(savedState, savedAt);
   return true;
 }
 
 async function startCloudSync(){
   try {
-    await signInAnonymously(auth);
+    const [appModule, authModule, firestoreModule] = await Promise.all([
+      import("https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js"),
+      import("https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js"),
+      import("https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js")
+    ]);
+
+    const firebaseApp = appModule.initializeApp(firebaseConfig);
+    const auth = authModule.getAuth(firebaseApp);
+    const db = firestoreModule.getFirestore(firebaseApp);
+    wheelRef = firestoreModule.doc(db, "wheels", "shared-wheel");
+    setDoc = firestoreModule.setDoc;
+    serverTimestamp = firestoreModule.serverTimestamp;
+
+    await authModule.signInAnonymously(auth);
     firebaseReady = true;
 
-    onSnapshot(wheelRef, { includeMetadataChanges:true }, snapshot => {
+    firestoreModule.onSnapshot(wheelRef, { includeMetadataChanges:true }, snapshot => {
       if (snapshot.metadata.hasPendingWrites) return;
 
       syncStatus = "ready";
@@ -334,7 +371,9 @@ function renderStatus(){
 
   if (syncStatus === 'loading' || syncStatus === 'saving'){
     line.classList.add('loading');
-    text.textContent = syncStatus === 'saving' ? 'Saving to cloud…' : 'Connecting to cloud…';
+    text.textContent = syncStatus === 'saving'
+      ? 'Saving to cloud…'
+      : savedState ? 'Showing saved result — syncing…' : 'Connecting to cloud…';
     return;
   }
 
@@ -424,6 +463,8 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
       updatedAt: serverTimestamp()
     });
     savedState = stateToSave;
+    savedAt = new Date();
+    cacheResult(savedState, savedAt);
     syncStatus = 'ready';
     btn.textContent = 'Saved';
   } catch(e) {
@@ -440,6 +481,7 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
 
 buildStatic();
 buildInteractive();
+loadCachedResult();
 render();
 startCloudSync();
 </script>
