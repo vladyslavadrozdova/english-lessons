@@ -6,9 +6,6 @@
 <title>Wheel of balance</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-<link rel="preconnect" href="https://identitytoolkit.googleapis.com">
-<link rel="preconnect" href="https://firestore.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -129,9 +126,73 @@
     .card{ padding:30px 22px 26px; }
     .row{ grid-template-columns:110px 1fr auto; gap:10px; }
   }
+
+  /* ---------- Reflection questions ---------- */
+  .reflect-wrap{
+    background:var(--dark);
+    padding:60px 24px 10px;
+  }
+  .reflect-card{
+    max-width:700px; margin:0 auto;
+    background:var(--card); border-radius:18px;
+    padding:36px 36px 30px;
+    box-shadow:0 30px 60px rgba(0,0,0,0.35);
+  }
+  .reflect-eyebrow{
+    font-family:'Inter', sans-serif; font-weight:700; font-size:11px;
+    letter-spacing:0.14em; text-transform:uppercase; color:var(--accent-deep);
+    margin-bottom:6px;
+  }
+  .reflect-title{
+    font-family:'Playfair Display', serif; font-style:italic; font-weight:500;
+    font-size:26px; color:var(--ink); margin:0 0 8px;
+  }
+  .reflect-sub{
+    font-size:13px; color:var(--muted); line-height:1.6; margin:0 0 28px;
+  }
+  .reflect-item{
+    padding:20px 0; border-bottom:1px solid var(--line);
+  }
+  .reflect-item:first-of-type{ padding-top:0; }
+  .reflect-item:last-of-type{ border-bottom:none; padding-bottom:4px; }
+  .reflect-num{
+    font-family:'Inter', sans-serif; font-weight:700; font-size:11px;
+    color:var(--accent); letter-spacing:0.04em; margin-bottom:6px;
+  }
+  .reflect-q{
+    font-family:'Inter', sans-serif; font-weight:600; font-size:15px;
+    color:var(--ink); margin:0 0 10px; line-height:1.4;
+  }
+  .reflect-a{
+    width:100%; min-height:56px; resize:vertical;
+    font-family:'Inter', sans-serif; font-size:14px; color:var(--ink);
+    background:var(--cream); border:1px solid var(--line); border-radius:10px;
+    padding:12px 14px; line-height:1.5;
+    transition:border-color 0.15s ease;
+  }
+  .reflect-a:focus{ outline:none; border-color:var(--accent); }
+  .reflect-status{
+    display:flex; align-items:center; gap:8px; justify-content:center;
+    font-family:'Inter', sans-serif; font-weight:500; font-size:12px;
+    color:var(--muted); margin-top:22px;
+  }
+  .reflect-status .dot{ width:6px; height:6px; border-radius:50%; background:var(--accent); flex-shrink:0; opacity:0; transition:opacity 0.2s ease; }
+  .reflect-status.visible .dot{ opacity:1; }
 </style>
 </head>
 <body>
+
+<div class="reflect-wrap">
+  <div class="reflect-card">
+    <div class="reflect-eyebrow">Before you start</div>
+    <h2 class="reflect-title">A few questions for yourself</h2>
+    <p class="reflect-sub">Take a moment to write honest answers — there's no right length, just your own words. Your answers are saved automatically in this browser.</p>
+
+    <div id="reflectList"></div>
+
+    <div class="reflect-status" id="reflectStatus"><span class="dot"></span><span id="reflectStatusText">Saved automatically as you type</span></div>
+  </div>
+</div>
 
 <div class="dark-wrap">
   <h1>Wheel of balance</h1>
@@ -164,6 +225,58 @@
 </div>
 
 <script>
+const reflectQuestions = [
+  "What English skill do you want to improve the most?",
+  "What exactly do you want to be able to do in English?",
+  "In what situations do you want to use English?",
+  "How will great knowledge of English help you in your life or career?",
+  "What specific result will show that you've succeeded? Imagine what kind of result you want to get in 6 months?",
+  "How much time would you like to spend on learning English per week?",
+  "What resources do you already have?",
+  "When do you want to achieve this goal?",
+  "How much time do you think you need?",
+  "Do you have a deadline?"
+];
+const REFLECT_KEY = 'wheelOfSkillsReflection';
+
+(function initReflection(){
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem(REFLECT_KEY)) || {}; } catch(e){}
+
+  const list = document.getElementById('reflectList');
+  reflectQuestions.forEach((q, i) => {
+    const item = document.createElement('div');
+    item.className = 'reflect-item';
+    item.innerHTML = `
+      <div class="reflect-num">Question ${i + 1} of ${reflectQuestions.length}</div>
+      <p class="reflect-q">${q}</p>
+      <textarea class="reflect-a" data-idx="${i}" placeholder="Type your answer here…">${saved[i] ? saved[i] : ''}</textarea>
+    `;
+    list.appendChild(item);
+  });
+
+  const statusEl = document.getElementById('reflectStatus');
+  let saveTimer = null;
+  list.addEventListener('input', (e) => {
+    if (!e.target.classList.contains('reflect-a')) return;
+    const idx = e.target.getAttribute('data-idx');
+    let current = {};
+    try { current = JSON.parse(localStorage.getItem(REFLECT_KEY)) || {}; } catch(err){}
+    current[idx] = e.target.value;
+    localStorage.setItem(REFLECT_KEY, JSON.stringify(current));
+
+    statusEl.classList.add('visible');
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => statusEl.classList.remove('visible'), 1400);
+  });
+})();
+</script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+import { doc, getFirestore, onSnapshot, serverTimestamp, setDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
 const firebaseConfig = {
   apiKey: "AIzaSyBRN7DCQo6l0zoczP3UnewppmJmubyDNq8",
   authDomain: "lesson-v1-de126.firebaseapp.com",
@@ -173,10 +286,14 @@ const firebaseConfig = {
   appId: "1:304810384648:web:cc15bc54cb56648a4c60bd"
 };
 
+const firebaseApp = initializeApp(firebaseConfig);
+const auth = getAuth(firebaseApp);
+const db = getFirestore(firebaseApp);
+const wheelRef = doc(db, "wheels", "shared-wheel");
+
 const categories = ["Listening","Reading","Speaking","Vocabulary","Pronunciation","Grammar","Writing","Confidence"];
 const cx = 340, cy = 340, outerR = 234, levels = 10, spacing = outerR / levels;
 const labelR = 278;
-const CACHE_KEY = "wheelOfSkillsCloudCacheV1";
 
 let state = {};
 categories.forEach(c => state[c] = 5);
@@ -186,37 +303,9 @@ let savedAt = null;
 let syncStatus = "loading";
 let syncError = "";
 let firebaseReady = false;
-let wheelRef = null;
-let setDoc = null;
-let serverTimestamp = null;
 
 function validLevel(value){
   return Number.isInteger(value) && value >= 1 && value <= 10;
-}
-
-function cacheResult(resultState, resultDate){
-  try {
-    localStorage.setItem(CACHE_KEY, JSON.stringify({
-      state: resultState,
-      savedAt: resultDate instanceof Date ? resultDate.toISOString() : null
-    }));
-  } catch(e) {}
-}
-
-function loadCachedResult(){
-  try {
-    const cached = JSON.parse(localStorage.getItem(CACHE_KEY));
-    const isComplete = cached && cached.state
-      && categories.every(category => validLevel(cached.state[category]));
-    if (!isComplete) return false;
-
-    categories.forEach(category => { state[category] = cached.state[category]; });
-    savedState = { ...state };
-    savedAt = cached.savedAt ? new Date(cached.savedAt) : null;
-    return true;
-  } catch(e) {
-    return false;
-  }
 }
 
 function applyRemoteResult(data){
@@ -231,29 +320,15 @@ function applyRemoteResult(data){
   savedAt = data.updatedAt && typeof data.updatedAt.toDate === "function"
     ? data.updatedAt.toDate()
     : null;
-  cacheResult(savedState, savedAt);
   return true;
 }
 
 async function startCloudSync(){
   try {
-    const [appModule, authModule, firestoreModule] = await Promise.all([
-      import("https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js"),
-      import("https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js"),
-      import("https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js")
-    ]);
-
-    const firebaseApp = appModule.initializeApp(firebaseConfig);
-    const auth = authModule.getAuth(firebaseApp);
-    const db = firestoreModule.getFirestore(firebaseApp);
-    wheelRef = firestoreModule.doc(db, "wheels", "shared-wheel");
-    setDoc = firestoreModule.setDoc;
-    serverTimestamp = firestoreModule.serverTimestamp;
-
-    await authModule.signInAnonymously(auth);
+    await signInAnonymously(auth);
     firebaseReady = true;
 
-    firestoreModule.onSnapshot(wheelRef, { includeMetadataChanges:true }, snapshot => {
+    onSnapshot(wheelRef, { includeMetadataChanges:true }, snapshot => {
       if (snapshot.metadata.hasPendingWrites) return;
 
       syncStatus = "ready";
@@ -371,9 +446,7 @@ function renderStatus(){
 
   if (syncStatus === 'loading' || syncStatus === 'saving'){
     line.classList.add('loading');
-    text.textContent = syncStatus === 'saving'
-      ? 'Saving to cloud…'
-      : savedState ? 'Showing saved result — syncing…' : 'Connecting to cloud…';
+    text.textContent = syncStatus === 'saving' ? 'Saving to cloud…' : 'Connecting to cloud…';
     return;
   }
 
@@ -463,8 +536,6 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
       updatedAt: serverTimestamp()
     });
     savedState = stateToSave;
-    savedAt = new Date();
-    cacheResult(savedState, savedAt);
     syncStatus = 'ready';
     btn.textContent = 'Saved';
   } catch(e) {
@@ -481,9 +552,9 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
 
 buildStatic();
 buildInteractive();
-loadCachedResult();
 render();
 startCloudSync();
 </script>
 </body>
 </html>
+
