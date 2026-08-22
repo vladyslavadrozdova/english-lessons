@@ -252,11 +252,13 @@ const reflectQuestions = [
 let reflectAnswers = {};
 reflectQuestions.forEach((_, i) => { reflectAnswers[String(i)] = ""; });
 let savedReflection = null;
+const dirtyReflectionFields = new Set();
 
 const categories = ["Listening","Reading","Speaking","Vocabulary","Pronunciation","Grammar","Writing","Confidence"];
 const cx = 340, cy = 340, outerR = 234, levels = 10, spacing = outerR / levels;
 const labelR = 278;
 const CACHE_KEY = "wheelOfSkillsCloudCacheV2";
+const DRAFT_KEY = "wheelOfSkillsReflectionDraftV1";
 
 let state = {};
 categories.forEach(c => state[c] = 5);
@@ -280,6 +282,43 @@ function normalizedReflection(source = {}){
     result[String(i)] = typeof source[i] === "string" ? source[i].slice(0, 4000) : "";
   });
   return result;
+}
+
+function mergeRemoteReflection(remoteSource = {}, localSource = {}, dirtyFields = new Set()){
+  const remote = normalizedReflection(remoteSource);
+  const merged = normalizedReflection(localSource);
+  reflectQuestions.forEach((_, i) => {
+    const key = String(i);
+    if (!dirtyFields.has(key)) merged[key] = remote[key];
+  });
+  return { remote, merged };
+}
+
+function cacheDraft(){
+  try {
+    if (dirtyReflectionFields.size) {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify({
+        reflection: reflectAnswers,
+        dirtyFields: [...dirtyReflectionFields]
+      }));
+    } else {
+      localStorage.removeItem(DRAFT_KEY);
+    }
+  } catch(e) {}
+}
+
+function loadDraft(){
+  try {
+    const draft = JSON.parse(localStorage.getItem(DRAFT_KEY));
+    if (!draft || !draft.reflection || !Array.isArray(draft.dirtyFields)) return;
+    const normalized = normalizedReflection(draft.reflection);
+    draft.dirtyFields.forEach(key => {
+      const normalizedKey = String(key);
+      if (!Object.prototype.hasOwnProperty.call(normalized, normalizedKey)) return;
+      reflectAnswers[normalizedKey] = normalized[normalizedKey];
+      dirtyReflectionFields.add(normalizedKey);
+    });
+  } catch(e) {}
 }
 
 function cacheResult(){
@@ -317,20 +356,23 @@ function applyRemoteResult(data){
     }
   }
 
-  const remoteReflection = data && data.reflection;
-  if (remoteReflection && typeof remoteReflection === "object") {
-    reflectAnswers = normalizedReflection(remoteReflection);
-    savedReflection = { ...reflectAnswers };
-    reflectQuestions.forEach((q, i) => {
-      const ta = document.querySelector('.reflect-a[data-idx="' + i + '"]');
-      if (ta && document.activeElement !== ta && ta.value !== (remoteReflection[i] || '')) {
-        ta.value = remoteReflection[i] || '';
-      }
-    });
-  } else {
-    reflectAnswers = normalizedReflection();
-    savedReflection = { ...reflectAnswers };
-  }
+  const remoteReflection = data && data.reflection && typeof data.reflection === "object"
+    ? data.reflection
+    : {};
+  const reflectionMerge = mergeRemoteReflection(
+    remoteReflection,
+    reflectAnswers,
+    dirtyReflectionFields
+  );
+  reflectAnswers = reflectionMerge.merged;
+  savedReflection = { ...reflectionMerge.remote };
+  reflectQuestions.forEach((q, i) => {
+    const key = String(i);
+    const ta = document.querySelector('.reflect-a[data-idx="' + i + '"]');
+    if (ta && !dirtyReflectionFields.has(key) && ta.value !== reflectAnswers[key]) {
+      ta.value = reflectAnswers[key];
+    }
+  });
   cacheResult();
   return true;
 }
@@ -354,6 +396,8 @@ function renderReflectionFields(){
     if (!e.target.classList.contains('reflect-a')) return;
     const idx = e.target.getAttribute('data-idx');
     reflectAnswers[idx] = e.target.value;
+    dirtyReflectionFields.add(idx);
+    cacheDraft();
     statusText.textContent = 'Unsaved answer — press Save below';
     renderStatus();
   });
@@ -577,7 +621,14 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
   if (!firebaseReady) return;
 
   const stateToSave = { ...state };
-  const reflectionToSave = normalizedReflection(reflectAnswers);
+  const reflectionFromFields = {};
+  document.querySelectorAll('.reflect-a').forEach(ta => {
+    reflectionFromFields[ta.getAttribute('data-idx')] = ta.value;
+  });
+  const reflectionToSave = normalizedReflection({
+    ...reflectAnswers,
+    ...reflectionFromFields
+  });
   syncStatus = 'saving';
   syncError = '';
   btn.textContent = 'Saving…';
@@ -593,6 +644,8 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
     savedState = stateToSave;
     reflectAnswers = reflectionToSave;
     savedReflection = { ...reflectionToSave };
+    dirtyReflectionFields.clear();
+    cacheDraft();
     savedAt = new Date();
     cacheResult();
     syncStatus = 'ready';
@@ -613,6 +666,7 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
 buildStatic();
 buildInteractive();
 loadCachedResult();
+loadDraft();
 render();
 renderReflectionFields();
 startCloudSync();
