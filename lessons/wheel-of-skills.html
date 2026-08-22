@@ -144,7 +144,14 @@
   .reflect-eyebrow{
     font-family:'Inter', sans-serif; font-weight:700; font-size:11px;
     letter-spacing:0.14em; text-transform:uppercase; color:var(--accent-deep);
-    margin-bottom:6px;
+  }
+  .reflect-meta{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:16px; margin-bottom:6px;
+  }
+  .reflect-updated{
+    font-family:'Inter', sans-serif; font-weight:500; font-size:11px;
+    color:var(--muted); text-align:right; white-space:nowrap;
   }
   .reflect-title{
     font-family:'Playfair Display', serif; font-style:italic; font-weight:500;
@@ -181,13 +188,20 @@
   }
   .reflect-status .dot{ width:6px; height:6px; border-radius:50%; background:var(--accent); flex-shrink:0; opacity:0; transition:opacity 0.2s ease; }
   .reflect-status.visible .dot{ opacity:1; }
+  @media (max-width:600px){
+    .reflect-meta{ align-items:flex-start; }
+    .reflect-updated{ white-space:normal; max-width:150px; }
+  }
 </style>
 </head>
 <body>
 
 <div class="reflect-wrap">
   <div class="reflect-card">
-    <div class="reflect-eyebrow">Before you start</div>
+    <div class="reflect-meta">
+      <div class="reflect-eyebrow">Before you start</div>
+      <div class="reflect-updated" id="reflectUpdatedAt">Not updated yet</div>
+    </div>
     <h2 class="reflect-title">A few questions for yourself</h2>
     <p class="reflect-sub">Take a moment to write honest answers — there's no right length, just your own words. The Save button below stores your answers and skills together.</p>
 
@@ -535,7 +549,16 @@ function render(){
 function renderStatus(){
   const line = document.getElementById('statusLine');
   const text = document.getElementById('statusText');
+  const reflectionUpdatedAt = document.getElementById('reflectUpdatedAt');
   line.classList.remove('saved', 'dirty', 'loading', 'error');
+
+  if (reflectionUpdatedAt) {
+    reflectionUpdatedAt.textContent = savedAt
+      ? `Last updated ${new Intl.DateTimeFormat(undefined, {
+          day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'
+        }).format(savedAt)}`
+      : 'Not updated yet';
+  }
 
   if (syncStatus === 'loading' || syncStatus === 'saving'){
     line.classList.add('loading');
