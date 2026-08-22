@@ -150,8 +150,16 @@
     gap:16px; margin-bottom:6px;
   }
   .reflect-updated{
-    font-family:'Inter', sans-serif; font-weight:500; font-size:11px;
+    display:flex; align-items:baseline; justify-content:flex-end; gap:6px;
     color:var(--muted); text-align:right; white-space:nowrap;
+  }
+  .reflect-updated-label{
+    font-family:'Inter', sans-serif; font-weight:600; font-size:9px;
+    letter-spacing:0.1em; text-transform:uppercase;
+  }
+  .reflect-updated-value{
+    font-family:'Playfair Display', serif; font-style:italic; font-weight:500;
+    font-size:13px; letter-spacing:0.01em; color:var(--ink);
   }
   .reflect-title{
     font-family:'Playfair Display', serif; font-style:italic; font-weight:500;
@@ -190,7 +198,7 @@
   .reflect-status.visible .dot{ opacity:1; }
   @media (max-width:600px){
     .reflect-meta{ align-items:flex-start; }
-    .reflect-updated{ white-space:normal; max-width:150px; }
+    .reflect-updated{ align-items:flex-end; flex-direction:column; gap:2px; white-space:normal; max-width:170px; }
   }
 </style>
 </head>
@@ -200,7 +208,10 @@
   <div class="reflect-card">
     <div class="reflect-meta">
       <div class="reflect-eyebrow">Before you start</div>
-      <div class="reflect-updated" id="reflectUpdatedAt">Not updated yet</div>
+      <div class="reflect-updated">
+        <span class="reflect-updated-label">Last updated</span>
+        <span class="reflect-updated-value" id="reflectUpdatedAt">Not yet</span>
+      </div>
     </div>
     <h2 class="reflect-title">A few questions for yourself</h2>
     <p class="reflect-sub">Take a moment to write honest answers — there's no right length, just your own words. The Save button below stores your answers and skills together.</p>
@@ -554,10 +565,10 @@ function renderStatus(){
 
   if (reflectionUpdatedAt) {
     reflectionUpdatedAt.textContent = savedAt
-      ? `Last updated ${new Intl.DateTimeFormat(undefined, {
+      ? new Intl.DateTimeFormat(undefined, {
           day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'
-        }).format(savedAt)}`
-      : 'Not updated yet';
+        }).format(savedAt)
+      : 'Not yet';
   }
 
   if (syncStatus === 'loading' || syncStatus === 'saving'){
