@@ -154,12 +154,13 @@
     color:var(--muted); text-align:right; white-space:nowrap;
   }
   .reflect-updated-label{
-    font-family:'Inter', sans-serif; font-weight:600; font-size:9px;
-    letter-spacing:0.1em; text-transform:uppercase;
+    font-family:'Playfair Display', serif; font-style:italic; font-weight:500;
+    font-size:13px; letter-spacing:0.01em; color:var(--muted);
   }
   .reflect-updated-value{
-    font-family:'Playfair Display', serif; font-style:italic; font-weight:500;
-    font-size:13px; letter-spacing:0.01em; color:var(--ink);
+    font-family:'Inter', sans-serif; font-style:normal; font-weight:700;
+    font-size:11px; letter-spacing:0.14em; text-transform:uppercase;
+    color:var(--accent-deep);
   }
   .reflect-title{
     font-family:'Playfair Display', serif; font-style:italic; font-weight:500;
@@ -565,8 +566,8 @@ function renderStatus(){
 
   if (reflectionUpdatedAt) {
     reflectionUpdatedAt.textContent = savedAt
-      ? new Intl.DateTimeFormat(undefined, {
-          day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'
+      ? new Intl.DateTimeFormat('en-US', {
+          day:'numeric', month:'long', year:'numeric'
         }).format(savedAt)
       : 'Not yet';
   }
