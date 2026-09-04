@@ -35,12 +35,21 @@
     display:flex;
     flex-direction:column;
     justify-content:center;
-    background:
-      linear-gradient(rgba(21,19,17,0.55), rgba(21,19,17,0.72)),
-      url('assets/sentence-ordering-bg.png') center / contain no-repeat,
-      var(--dark);
+    background:var(--dark);
   }
-  .dark-wrap > *{ position:relative; z-index:1; }
+  .bg-photo{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    object-fit:contain;
+    filter:grayscale(25%) brightness(0.75) contrast(0.95) saturate(0.85);
+    z-index:0;
+  }
+  .bg-overlay{
+    position:absolute; inset:0;
+    background:rgba(21,19,17,0.42);
+    z-index:0;
+  }
+  .dark-wrap > *:not(.bg-photo):not(.bg-overlay){ position:relative; z-index:1; }
   h1{
     font-family:'Playfair Display', serif; font-weight:600; text-transform:uppercase;
     font-size:36px; letter-spacing:0.03em; color:var(--cream); margin:0 0 14px;
@@ -177,6 +186,8 @@
 <body>
 
 <div class="dark-wrap">
+  <img class="bg-photo" src="assets/sentence-ordering-bg.png" alt="">
+  <div class="bg-overlay"></div>
   <h1>Sentence Ordering</h1>
   <p class="lede">Present Simple, Present Continuous &amp; Stative Verbs</p>
   <p class="sub">Put the scrambled words in the correct order. Tap a word to add it to your sentence — tap it again to take it back. A mix of statements, questions, and stative verbs.</p>
@@ -411,6 +422,7 @@ loadExercise(0);
 </script>
 </body>
 </html>
+
 
 
 
