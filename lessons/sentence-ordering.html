@@ -31,10 +31,13 @@
     text-align:center;
     position:relative;
     overflow:hidden;
+    min-height:420px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
     background:
-      radial-gradient(ellipse 700px 400px at 50% 0%, rgba(48,44,39,0.6) 0%, transparent 60%),
-      linear-gradient(rgba(21,19,17,0.88), rgba(21,19,17,0.93)),
-      url('assets/sentence-ordering-bg.png') center / cover no-repeat,
+      linear-gradient(rgba(21,19,17,0.55), rgba(21,19,17,0.72)),
+      url('assets/sentence-ordering-bg.png') center / contain no-repeat,
       var(--dark);
   }
   .dark-wrap > *{ position:relative; z-index:1; }
@@ -408,6 +411,7 @@ loadExercise(0);
 </script>
 </body>
 </html>
+
 
 
 
