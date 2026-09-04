@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sentence Ordering — Present Simple, Present Continuous & Stative Verbs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --dark:#151311;
+    --cream:#F2EBDC;
+    --card:#FFFFFF;
+    --ink:#171512;
+    --muted:#6E695D;
+    --line:#E4DECC;
+    --accent:#C86EAA;
+    --accent-deep:#A9548B;
+    --good:#4E9A63;
+    --good-bg:#E5F3E8;
+    --bad:#C4573F;
+    --bad-bg:#FBEAE5;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0; background:var(--dark);}
+  body{ font-family:'Inter', sans-serif; font-weight:400; }
+
+  .dark-wrap{
+    padding:70px 24px 60px;
+    text-align:center;
+    background:
+      radial-gradient(ellipse 700px 400px at 50% 0%, #302C27 0%, transparent 60%),
+      var(--dark);
+  }
+  h1{
+    font-family:'Playfair Display', serif; font-weight:600; text-transform:uppercase;
+    font-size:36px; letter-spacing:0.03em; color:var(--cream); margin:0 0 14px;
+  }
+  .lede{
+    font-family:'Playfair Display', serif; font-style:italic; font-weight:500;
+    font-size:19px; color:#C9C3B3; max-width:560px; margin:0 auto 12px; line-height:1.5;
+  }
+  .sub{
+    font-size:13px; color:#8B8578; max-width:480px; margin:0 auto; line-height:1.7;
+  }
+
+  .example{
+    max-width:520px; margin:26px auto 0;
+    background:rgba(255,255,255,0.05);
+    border:1px solid rgba(255,255,255,0.12);
+    border-radius:14px;
+    padding:16px 20px;
+    text-align:left;
+  }
+  .example-label{
+    font-family:'Inter', sans-serif; font-weight:700; font-size:10.5px;
+    letter-spacing:0.12em; text-transform:uppercase; color:var(--accent);
+    margin-bottom:8px;
+  }
+  .example-scramble{ font-size:13px; color:#9A9484; margin-bottom:4px; }
+  .example-answer{ font-family:'Playfair Display', serif; font-style:italic; font-size:16px; color:var(--cream); }
+
+  .card-wrap{ max-width:640px; margin:-30px auto 0; padding:0 20px 70px; }
+  .card{
+    background:var(--card); border-radius:18px; padding:38px 34px 32px;
+    box-shadow:0 30px 60px rgba(0,0,0,0.35);
+  }
+
+  .progress-row{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:22px;
+  }
+  .progress-text{
+    font-family:'Inter', sans-serif; font-weight:600; font-size:11.5px;
+    letter-spacing:0.1em; text-transform:uppercase; color:var(--muted);
+  }
+  .score-text{
+    font-family:'Inter', sans-serif; font-weight:600; font-size:11.5px;
+    letter-spacing:0.06em; text-transform:uppercase; color:var(--accent-deep);
+  }
+  .progress-track{
+    height:4px; background:var(--line); border-radius:999px; margin-bottom:30px; overflow:hidden;
+  }
+  .progress-fill{
+    height:100%; background:var(--accent); border-radius:999px; transition:width 0.3s ease;
+  }
+
+  .answer-strip{
+    min-height:64px;
+    display:flex; flex-wrap:wrap; gap:8px; align-content:flex-start;
+    padding:14px; margin-bottom:18px;
+    background:var(--cream); border:1.5px dashed var(--line); border-radius:12px;
+    transition:border-color 0.2s ease, background 0.2s ease;
+  }
+  .answer-strip.correct{ background:var(--good-bg); border-color:var(--good); border-style:solid; }
+  .answer-strip.incorrect{ background:var(--bad-bg); border-color:var(--bad); border-style:solid; animation:shake 0.35s ease; }
+  .answer-strip.empty::before{
+    content:"Tap the words below in the right order";
+    font-size:13px; color:var(--muted); font-style:italic; align-self:center;
+  }
+  @keyframes shake{
+    0%,100%{ transform:translateX(0); }
+    25%{ transform:translateX(-6px); }
+    75%{ transform:translateX(6px); }
+  }
+
+  .word-tile{
+    font-family:'Inter', sans-serif; font-weight:600; font-size:14.5px;
+    background:#fff; color:var(--ink);
+    border:1.5px solid var(--ink); border-radius:9px;
+    padding:9px 14px; cursor:pointer;
+    transition:transform 0.1s ease, background 0.15s ease, color 0.15s ease;
+  }
+  .word-tile:hover{ transform:translateY(-2px); }
+  .word-tile:active{ transform:translateY(0); }
+
+  .answer-strip .word-tile{
+    background:var(--ink); color:#fff; border-color:var(--ink);
+  }
+  .answer-strip.correct .word-tile{ background:var(--good); border-color:var(--good); }
+  .answer-strip.incorrect .word-tile{ background:var(--bad); border-color:var(--bad); }
+
+  .bank{
+    display:flex; flex-wrap:wrap; gap:8px; margin-bottom:26px;
+  }
+  .word-tile.used{ visibility:hidden; }
+
+  .feedback{
+    display:none; align-items:center; gap:8px;
+    font-family:'Inter', sans-serif; font-weight:600; font-size:13.5px;
+    border-radius:10px; padding:12px 14px; margin-bottom:20px;
+  }
+  .feedback.show{ display:flex; }
+  .feedback.good{ background:var(--good-bg); color:var(--good); }
+  .feedback.bad{ background:var(--bad-bg); color:var(--bad); }
+  .feedback .full-sentence{ font-style:italic; font-family:'Playfair Display', serif; font-weight:500; }
+
+  .actions{ display:flex; justify-content:space-between; align-items:center; gap:10px; }
+  .actions-left{ display:flex; gap:10px; }
+  button.btn{
+    font-family:'Inter', sans-serif; font-weight:700; font-size:12px;
+    letter-spacing:0.06em; text-transform:uppercase; background:transparent;
+    border:1.5px solid var(--ink); color:var(--ink); padding:12px 20px; cursor:pointer;
+    border-radius:999px; transition:background 0.15s ease, color 0.15s ease, opacity 0.15s ease;
+  }
+  button.btn:hover{ background:var(--ink); color:#fff; }
+  button.btn.primary{ background:var(--accent); border-color:var(--accent); color:#fff; }
+  button.btn.primary:hover{ background:var(--accent-deep); border-color:var(--accent-deep); }
+  button.btn:disabled{ opacity:0.35; cursor:not-allowed; }
+  button.btn:disabled:hover{ background:transparent; color:var(--ink); }
+  button.btn.primary:disabled:hover{ background:var(--accent); color:#fff; }
+
+  .done-screen{ text-align:center; padding:20px 0 6px; }
+  .done-emoji{ font-size:42px; margin-bottom:10px; }
+  .done-title{ font-family:'Playfair Display', serif; font-style:italic; font-size:26px; color:var(--ink); margin:0 0 8px; }
+  .done-score{ font-size:15px; color:var(--muted); margin-bottom:26px; }
+  .done-score strong{ color:var(--accent-deep); }
+
+  @media (max-width:600px){
+    h1{ font-size:26px; }
+    .lede{ font-size:16px; }
+    .card{ padding:28px 20px 24px; }
+    .actions{ flex-direction:column-reverse; align-items:stretch; }
+    .actions-left{ justify-content:space-between; }
+  }
+</style>
+</head>
+<body>
+
+<div class="dark-wrap">
+  <h1>Sentence Ordering 🧩</h1>
+  <p class="lede">Present Simple, Present Continuous &amp; Stative Verbs</p>
+  <p class="sub">Put the scrambled words in the correct order. Tap a word to add it to your sentence — tap it again to take it back. A mix of statements, questions, and stative verbs.</p>
+
+  <div class="example">
+    <div class="example-label">Example</div>
+    <div class="example-scramble">right now / cleaning / the / I'm / fridge</div>
+    <div class="example-answer">→ I'm cleaning the fridge right now.</div>
+  </div>
+</div>
+
+<div class="card-wrap">
+  <div class="card" id="quizCard">
+
+    <div id="quizScreen">
+      <div class="progress-row">
+        <span class="progress-text" id="progressText">Sentence 1 of 22</span>
+        <span class="score-text" id="scoreText">Score: 0</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:4.5%"></div></div>
+
+      <div class="answer-strip empty" id="answerStrip"></div>
+      <div class="bank" id="bankRow"></div>
+
+      <div class="feedback" id="feedback">
+        <span id="feedbackIcon">✓</span>
+        <span id="feedbackText"></span>
+      </div>
+
+      <div class="actions">
+        <div class="actions-left">
+          <button class="btn" id="resetBtn">Reset</button>
+          <button class="btn" id="skipBtn">Skip</button>
+        </div>
+        <div class="actions-right">
+          <button class="btn primary" id="checkBtn">Check</button>
+          <button class="btn primary" id="nextBtn" style="display:none;">Next →</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="done-screen" id="doneScreen" style="display:none;">
+      <div class="done-emoji">🎉</div>
+      <div class="done-title">All 22 sentences done!</div>
+      <div class="done-score">You got <strong id="finalScore">0</strong> out of 22 right on the first try.</div>
+      <button class="btn primary" id="restartBtn">Start again</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const exercises = [
+  { tokens:["every","vacuum","robot","the","cleans","day"], correct:["the","vacuum","robot","cleans","every","day"] },
+  { tokens:["this","delicious","smells","soup"], correct:["this","soup","smells","delicious"] },
+  { tokens:["armchair","reading","I'm","in","my","a","book"], correct:["I'm","reading","a","book","in","my","armchair"] },
+  { tokens:["the","cleaning","are","kitchen","you","?"], correct:["are","you","cleaning","the","kitchen","?"] },
+  { tokens:["never","drawer","in","the","I","keep","socks"], correct:["I","never","keep","socks","in","the","drawer"] },
+  { tokens:["mine","belongs","that","to","mirror"], correct:["that","mirror","belongs","to","mine"] },
+  { tokens:["curtains","closing","she's","the","now"], correct:["she's","closing","the","curtains","now"] },
+  { tokens:["usually","where","keep","your","do","towels","you","?"], correct:["where","do","you","usually","keep","your","towels","?"] },
+  { tokens:["every","cupboard","I","evening","the","clean"], correct:["I","clean","the","cupboard","every","evening"] },
+  { tokens:["more","need","I","cushions"], correct:["I","need","more","cushions"] },
+  { tokens:["now","cooking","stove","he's","the","on"], correct:["he's","cooking","on","the","stove","now"] },
+  { tokens:["is","cooking","who","dinner","now","?"], correct:["who","is","cooking","dinner","now","?"] },
+  { tokens:["right","cushions","arranging","now","the","I'm"], correct:["I'm","arranging","the","cushions","right","now"] },
+  { tokens:["tired","seem","you"], correct:["you","seem","tired"] },
+  { tokens:["shelf","putting","the","on","books","she's"], correct:["she's","putting","books","on","the","shelf"] },
+  { tokens:["she","is","plates","washing","the","now","?"], correct:["is","she","washing","the","plates","now","?"] },
+  { tokens:["razor","never","I","that","use"], correct:["I","never","use","that","razor"] },
+  { tokens:["own","a","small","we","vase","blue"], correct:["we","own","a","small","blue","vase"] },
+  { tokens:["shower","the","at","moment","taking","a","she's"], correct:["she's","taking","a","shower","at","the","moment"] },
+  { tokens:["often","how","clean","do","you","the","fridge","?"], correct:["how","often","do","you","clean","the","fridge","?"] },
+  { tokens:["towel","I","dry","with","a","body","my"], correct:["I","dry","my","body","with","a","towel"] },
+  { tokens:["sad","your","plant","looks"], correct:["your","plant","looks","sad"] }
+];
+
+let order = [];          // shuffled index order of exercises to play (kept simple = sequential)
+let current = 0;
+let score = 0;
+let bank = [];            // {word, used}
+let chosen = [];          // indices into bank
+let checked = false;
+let firstTryCorrect = new Array(exercises.length).fill(null);
+
+function shuffle(arr){
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function formatSentence(tokens){
+  let s = tokens.join(' ').replace(/ \?/g, '?');
+  s = s.charAt(0).toUpperCase() + s.slice(1);
+  if (!/[.?!]$/.test(s)) s += '.';
+  return s;
+}
+
+function loadExercise(i){
+  checked = false;
+  const ex = exercises[i];
+  bank = shuffle(ex.tokens).map(w => ({ word:w, used:false }));
+  chosen = [];
+
+  document.getElementById('progressText').textContent = `Sentence ${i + 1} of ${exercises.length}`;
+  document.getElementById('progressFill').style.width = `${((i + 1) / exercises.length) * 100}%`;
+  document.getElementById('scoreText').textContent = `Score: ${score}`;
+
+  const feedback = document.getElementById('feedback');
+  feedback.classList.remove('show', 'good', 'bad');
+
+  document.getElementById('checkBtn').style.display = 'inline-block';
+  document.getElementById('checkBtn').disabled = true;
+  document.getElementById('nextBtn').style.display = 'none';
+  document.getElementById('skipBtn').disabled = false;
+
+  renderAnswerStrip();
+  renderBank();
+}
+
+function renderBank(){
+  const row = document.getElementById('bankRow');
+  row.innerHTML = '';
+  bank.forEach((item, idx) => {
+    const b = document.createElement('button');
+    b.className = 'word-tile' + (item.used ? ' used' : '');
+    b.textContent = item.word;
+    b.disabled = checked;
+    b.addEventListener('click', () => {
+      if (checked || item.used) return;
+      item.used = true;
+      chosen.push(idx);
+      renderBank();
+      renderAnswerStrip();
+    });
+    row.appendChild(b);
+  });
+}
+
+function renderAnswerStrip(){
+  const strip = document.getElementById('answerStrip');
+  strip.innerHTML = '';
+  strip.classList.remove('correct', 'incorrect');
+  strip.classList.toggle('empty', chosen.length === 0);
+
+  chosen.forEach((bankIdx, posInChosen) => {
+    const item = bank[bankIdx];
+    const b = document.createElement('button');
+    b.className = 'word-tile';
+    b.textContent = item.word;
+    b.disabled = checked;
+    b.addEventListener('click', () => {
+      if (checked) return;
+      item.used = false;
+      chosen.splice(posInChosen, 1);
+      renderBank();
+      renderAnswerStrip();
+    });
+    strip.appendChild(b);
+  });
+
+  document.getElementById('checkBtn').disabled = chosen.length !== bank.length;
+}
+
+function checkAnswer(){
+  const ex = exercises[current];
+  const attempt = chosen.map(idx => bank[idx].word.toLowerCase());
+  const correctLower = ex.correct.map(w => w.toLowerCase());
+  const isCorrect = attempt.length === correctLower.length &&
+    attempt.every((w, i) => w === correctLower[i]);
+
+  checked = true;
+  if (firstTryCorrect[current] === null) firstTryCorrect[current] = isCorrect;
+
+  const strip = document.getElementById('answerStrip');
+  strip.classList.add(isCorrect ? 'correct' : 'incorrect');
+
+  const feedback = document.getElementById('feedback');
+  feedback.classList.add('show', isCorrect ? 'good' : 'bad');
+  feedback.classList.remove(isCorrect ? 'bad' : 'good');
+  document.getElementById('feedbackIcon').textContent = isCorrect ? '✓' : '✕';
+
+  if (isCorrect){
+    score++;
+    document.getElementById('scoreText').textContent = `Score: ${score}`;
+    document.getElementById('feedbackText').innerHTML =
+      `Correct! <span class="full-sentence">${formatSentence(ex.correct)}</span>`;
+    document.getElementById('checkBtn').style.display = 'none';
+    document.getElementById('nextBtn').style.display = 'inline-block';
+    document.getElementById('skipBtn').disabled = true;
+  } else {
+    document.getElementById('feedbackText').textContent = 'Not quite — try rearranging the words.';
+    checked = false;
+    renderBank();
+    renderAnswerStrip();
+  }
+}
+
+function goNext(){
+  if (current < exercises.length - 1){
+    current++;
+    loadExercise(current);
+  } else {
+    showDone();
+  }
+}
+
+function showDone(){
+  document.getElementById('quizScreen').style.display = 'none';
+  document.getElementById('doneScreen').style.display = 'block';
+  const firstTryScore = firstTryCorrect.filter(v => v === true).length;
+  document.getElementById('finalScore').textContent = firstTryScore;
+}
+
+function restart(){
+  current = 0;
+  score = 0;
+  firstTryCorrect = new Array(exercises.length).fill(null);
+  document.getElementById('quizScreen').style.display = 'block';
+  document.getElementById('doneScreen').style.display = 'none';
+  loadExercise(0);
+}
+
+document.getElementById('checkBtn').addEventListener('click', checkAnswer);
+document.getElementById('nextBtn').addEventListener('click', goNext);
+document.getElementById('skipBtn').addEventListener('click', goNext);
+document.getElementById('resetBtn').addEventListener('click', () => loadExercise(current));
+document.getElementById('restartBtn').addEventListener('click', restart);
+
+loadExercise(0);
+</script>
+</body>
+</html>
