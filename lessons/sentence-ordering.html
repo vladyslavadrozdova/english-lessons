@@ -346,9 +346,6 @@ function checkAnswer(){
   checked = true;
   if (firstTryCorrect[current] === null) firstTryCorrect[current] = isCorrect;
 
-  const strip = document.getElementById('answerStrip');
-  strip.classList.add(isCorrect ? 'correct' : 'incorrect');
-
   const feedback = document.getElementById('feedback');
   feedback.classList.add('show', isCorrect ? 'good' : 'bad');
   feedback.classList.remove(isCorrect ? 'bad' : 'good');
@@ -359,15 +356,17 @@ function checkAnswer(){
     document.getElementById('scoreText').textContent = `Score: ${score}`;
     document.getElementById('feedbackText').innerHTML =
       `Correct! <span class="full-sentence">${formatSentence(ex.correct)}</span>`;
-    document.getElementById('checkBtn').style.display = 'none';
-    document.getElementById('nextBtn').style.display = 'inline-block';
-    document.getElementById('skipBtn').disabled = true;
   } else {
-    document.getElementById('feedbackText').textContent = 'Not quite — try rearranging the words.';
-    checked = false;
-    renderBank();
-    renderAnswerStrip();
+    document.getElementById('feedbackText').innerHTML =
+      `Not quite. Correct answer: <span class="full-sentence">${formatSentence(ex.correct)}</span>`;
   }
+  document.getElementById('checkBtn').style.display = 'none';
+  document.getElementById('nextBtn').style.display = 'inline-block';
+  document.getElementById('skipBtn').disabled = true;
+
+  renderBank();
+  renderAnswerStrip();
+  document.getElementById('answerStrip').classList.add(isCorrect ? 'correct' : 'incorrect');
 }
 
 function goNext(){
@@ -405,3 +404,4 @@ loadExercise(0);
 </script>
 </body>
 </html>
+
