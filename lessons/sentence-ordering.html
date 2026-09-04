@@ -29,10 +29,19 @@
   .dark-wrap{
     padding:70px 24px 60px;
     text-align:center;
+    position:relative;
+    overflow:hidden;
     background:
       radial-gradient(ellipse 700px 400px at 50% 0%, #302C27 0%, transparent 60%),
       var(--dark);
   }
+  .bg-pattern{
+    position:absolute; inset:0;
+    z-index:0;
+    opacity:0.5;
+    pointer-events:none;
+  }
+  .dark-wrap > *:not(.bg-pattern){ position:relative; z-index:1; }
   h1{
     font-family:'Playfair Display', serif; font-weight:600; text-transform:uppercase;
     font-size:36px; letter-spacing:0.03em; color:var(--cream); margin:0 0 14px;
@@ -169,6 +178,51 @@
 <body>
 
 <div class="dark-wrap">
+  <svg class="bg-pattern" viewBox="0 0 1200 500" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <g fill="none" stroke="#4A4438" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+      <!-- window, top left -->
+      <g transform="translate(60,40)">
+        <rect x="0" y="0" width="90" height="110" rx="4"/>
+        <line x1="45" y1="0" x2="45" y2="110"/>
+        <line x1="0" y1="55" x2="90" y2="55"/>
+        <path d="M -6 0 L 45 -26 L 96 0" />
+      </g>
+      <!-- mug, top right -->
+      <g transform="translate(1020,60)">
+        <path d="M0 10 h58 v44 a29 29 0 0 1 -29 29 h0 a29 29 0 0 1 -29 -29 z"/>
+        <path d="M58 22 h14 a14 14 0 0 1 0 28 h-14"/>
+        <path d="M14 -6 q4 -8 0 -14" stroke-width="1.1"/>
+        <path d="M29 -8 q4 -8 0 -14" stroke-width="1.1"/>
+      </g>
+      <!-- plant, bottom left -->
+      <g transform="translate(90,340)">
+        <path d="M20 90 l-8 -60 q10 -22 30 -18"/>
+        <path d="M20 90 l6 -50 q-8 -26 -28 -28"/>
+        <path d="M20 90 l0 -70 q4 -30 26 -34"/>
+        <path d="M-6 90 h58 l-6 26 h-46 z"/>
+      </g>
+      <!-- broom, bottom right -->
+      <g transform="translate(1040,300)">
+        <line x1="10" y1="0" x2="60" y2="90"/>
+        <path d="M55 82 l30 14 M60 90 l32 6 M63 98 l30 -2 M58 106 l26 -12 M50 100 l20 20 M46 92 l14 26"/>
+      </g>
+      <!-- open book, center faint -->
+      <g transform="translate(560,60)" opacity="0.7">
+        <path d="M0 8 q30 -14 60 0 v70 q-30 -14 -60 0 z"/>
+        <path d="M120 8 q-30 -14 -60 0 v70 q30 -14 60 0 z"/>
+      </g>
+      <!-- towel / folded cloth, mid left -->
+      <g transform="translate(300,380)" opacity="0.6">
+        <path d="M0 0 h70 v18 q-35 10 -70 0 z"/>
+        <path d="M0 18 q35 10 70 0 v14 q-35 10 -70 0 z"/>
+      </g>
+      <!-- vase, mid right -->
+      <g transform="translate(880,380)" opacity="0.65">
+        <path d="M14 0 h20 l6 20 q10 14 6 34 q-4 18 -22 18 q-18 0 -22 -18 q-4 -20 6 -34 z"/>
+      </g>
+    </g>
+  </svg>
+
   <h1>Sentence Ordering 🧩</h1>
   <p class="lede">Present Simple, Present Continuous &amp; Stative Verbs</p>
   <p class="sub">Put the scrambled words in the correct order. Tap a word to add it to your sentence — tap it again to take it back. A mix of statements, questions, and stative verbs.</p>
@@ -404,4 +458,5 @@ loadExercise(0);
 </script>
 </body>
 </html>
+
 
