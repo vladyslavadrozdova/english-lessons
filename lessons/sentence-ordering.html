@@ -23,25 +23,20 @@
     --bad-bg:#FBEAE5;
   }
   *{box-sizing:border-box;}
-  html,body{margin:0; background:var(--dark);}
+  html,body{
+    margin:0;
+    min-height:100%;
+    background:
+      linear-gradient(rgba(21,19,17,0.45), rgba(21,19,17,0.45)),
+      url('assets/sentence-ordering-bg.png') center / cover no-repeat fixed,
+      var(--dark);
+  }
   body{ font-family:'Inter', sans-serif; font-weight:400; }
 
   .dark-wrap{
     padding:70px 24px 60px;
     text-align:center;
     position:relative;
-  }
-  .bg-photo{
-    position:fixed; inset:0;
-    width:100vw; height:100vh;
-    object-fit:cover;
-    filter:grayscale(25%) brightness(0.75) contrast(0.95) saturate(0.85);
-    z-index:-2;
-  }
-  .bg-overlay{
-    position:fixed; inset:0;
-    background:rgba(21,19,17,0.42);
-    z-index:-1;
   }
   h1{
     font-family:'Playfair Display', serif; font-weight:600; text-transform:uppercase;
@@ -179,8 +174,6 @@
 <body>
 
 <div class="dark-wrap">
-  <img class="bg-photo" src="assets/sentence-ordering-bg.png" alt="">
-  <div class="bg-overlay"></div>
   <h1>Sentence Ordering</h1>
   <p class="lede">Present Simple, Present Continuous &amp; Stative Verbs</p>
   <p class="sub">Put the scrambled words in the correct order. Tap a word to add it to your sentence — tap it again to take it back. A mix of statements, questions, and stative verbs.</p>
@@ -415,6 +408,7 @@ loadExercise(0);
 </script>
 </body>
 </html>
+
 
 
 
