@@ -32,15 +32,12 @@
     position:relative;
     overflow:hidden;
     background:
-      radial-gradient(ellipse 700px 400px at 50% 0%, #302C27 0%, transparent 60%),
+      radial-gradient(ellipse 700px 400px at 50% 0%, rgba(48,44,39,0.6) 0%, transparent 60%),
+      linear-gradient(rgba(21,19,17,0.88), rgba(21,19,17,0.93)),
+      url('assets/sentence-ordering-bg.png') center / cover no-repeat,
       var(--dark);
   }
-  .bg-pattern{
-    position:absolute; inset:0;
-    z-index:0;
-    opacity:0.5;
-    pointer-events:none;
-  }
+  .bg-pattern{ display:none; }
   .dark-wrap > *:not(.bg-pattern){ position:relative; z-index:1; }
   h1{
     font-family:'Playfair Display', serif; font-weight:600; text-transform:uppercase;
@@ -457,6 +454,7 @@ loadExercise(0);
 </script>
 </body>
 </html>
+
 
 
 
