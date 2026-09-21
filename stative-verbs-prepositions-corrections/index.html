@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Correct the mistakes: stative verbs and at, in, on</title>
+<style>
+  :root{
+    --bg:#17141b; --panel:#1d1821; --panel2:#261f2b; --text:#f4edf8; --muted:#b6adbd;
+    --line:#3b3242; --accent:#cda7e4; --accent2:#ef77ad; --ok:#8ed6a8; --bad:#ff8eb7;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:#0d0c0f;color:var(--text);font-family:Georgia,"Times New Roman",serif}
+  .wrap{max-width:980px;margin:0 auto;background:var(--bg);min-height:100vh;padding:48px 34px 70px}
+  h1{font-size:clamp(42px,7vw,72px);line-height:.98;margin:0 0 18px}
+  .subtitle{color:var(--muted);font-size:clamp(22px,3vw,34px);margin-bottom:44px}
+  .intro{font-size:25px;line-height:1.55;margin-bottom:44px}
+  .progressText{color:var(--muted);font-size:25px;margin-bottom:16px}
+  .bar{height:8px;background:#413449;border-radius:99px;overflow:hidden;margin-bottom:28px}
+  .bar>div{height:100%;width:0;background:var(--accent2);transition:.25s}
+  .item{padding:34px 0 44px;border-top:1px solid var(--line)}
+  .row{display:grid;grid-template-columns:70px 1fr;gap:18px;align-items:start}
+  .num{width:58px;height:58px;border:1px solid var(--line);border-radius:50%;display:grid;place-items:center;color:var(--muted);font-size:25px}
+  .num.ok{background:#20372a;color:var(--ok);border-color:#315640}
+  .num.bad{background:#442230;color:var(--bad);border-color:#5b2d40}
+  .sentence{font-size:31px;line-height:1.35;margin:2px 0 20px}
+  textarea{width:100%;min-height:88px;resize:vertical;border:1px solid #4a3d50;border-radius:14px;background:var(--panel2);color:var(--text);font:inherit;font-size:25px;padding:18px 20px;outline:none}
+  textarea:focus{border-color:var(--accent)}
+  .buttons{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px}
+  button{border:1px solid #4a3d50;background:transparent;color:var(--text);font:inherit;font-size:22px;border-radius:999px;padding:13px 24px;cursor:pointer}
+  button.primary{background:var(--accent);color:#1e1722;border-color:transparent}
+  button:hover{filter:brightness(1.06)}
+  .feedback{margin:18px 0 0 88px}
+  .hint{color:var(--muted);font-style:italic;font-size:22px;line-height:1.5;margin:12px 0}
+  .msg{font-size:22px;line-height:1.5;margin:12px 0}
+  .msg.ok{color:var(--ok)} .msg.bad{color:var(--bad)}
+  .answer{border-left:5px solid var(--accent2);padding:12px 0 12px 26px;margin-top:18px}
+  .answer strong{display:block;color:var(--accent2);font-size:25px;margin-bottom:8px}
+  .answer p{font-size:22px;line-height:1.5;margin:8px 0}
+  .controls{display:flex;gap:14px;flex-wrap:wrap;padding:32px 0;border-top:1px solid var(--line)}
+  .talk{padding-top:20px}
+  .talk h2{font-size:42px;margin-bottom:12px}
+  .talk p,.talk li{font-size:24px;line-height:1.55;color:var(--muted)}
+  .talk li{color:var(--text);margin:14px 0}
+  .brand{margin-top:70px;color:var(--accent2);font-style:italic;font-size:34px}
+  @media(max-width:640px){
+    .wrap{padding:28px 18px 50px}.row{grid-template-columns:48px 1fr;gap:12px}.num{width:44px;height:44px;font-size:20px}
+    .sentence{font-size:24px}.feedback{margin-left:60px}textarea{font-size:20px}.intro,.progressText{font-size:20px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Correct the mistakes</h1>
+  <div class="subtitle">Stative verbs and prepositions of time: at, in, on</div>
+  <div class="intro">Edit each sentence in the box, then press <b>Check</b>. Some sentences have one mistake, some have two, and three are already correct. There are 19 mistakes in total.</div>
+
+  <div class="progressText" id="progressText"></div>
+  <div class="bar"><div id="barFill"></div></div>
+
+  <div id="items"></div>
+
+  <div class="controls">
+    <button class="primary" id="checkAll">Check all</button>
+    <button id="showAll">Show all answers</button>
+    <button id="restart">Start again</button>
+  </div>
+
+  <section class="talk">
+    <h2>Now talk about you</h2>
+    <p>Answer in full sentences. Watch your verbs and your time words.</p>
+    <ul>
+      <li>What do you usually do on Sunday mornings, or at the weekend?</li>
+      <li>What's something you want to do next year?</li>
+      <li>Do you remember what you did on your last birthday?</li>
+      <li>What are you thinking about doing this autumn? What do you think about that plan?</li>
+    </ul>
+  </section>
+
+  <div class="brand">Beauty &amp; Brains</div>
+</div>
+
+<script>
+const LESSON = [
+  {
+    q:"I'm not knowing the answer at the moment.",
+    answers:["I don't know the answer at the moment."],
+    hint:"Check the verb: does know describe an action or a state?",
+    exp:"Know is a stative verb, so we normally use the simple form here. “At the moment” is correct."
+  },
+  {
+    q:"My brother is having a new car. He bought it on last Friday.",
+    answers:["My brother has a new car. He bought it last Friday."],
+    hint:"Look at have for possession, and remember that last + day does not take a preposition.",
+    exp:"Use has for possession. We say last Friday, not on last Friday."
+  },
+  {
+    q:"We usually go skiing in winter, at January or February.",
+    answers:["We usually go skiing in winter, in January or February."],
+    hint:"Which preposition do we use with months?",
+    exp:"Use in with months: in January, in February."
+  },
+  {
+    q:"This laptop is belonging to my boss.",
+    answers:["This laptop belongs to my boss."],
+    hint:"Belong usually describes a state, not an action.",
+    exp:"Belong is a stative verb, so use the present simple."
+  },
+  {
+    q:"I'm thinking you should call him on Monday morning.",
+    answers:["I think you should call him on Monday morning."],
+    hint:"Here think means ‘have an opinion’.",
+    exp:"When think means ‘believe/have an opinion’, use the present simple."
+  },
+  {
+    q:"What are you thinking about? You look worried.",
+    answers:["What are you thinking about? You look worried."],
+    hint:"Think about can describe an active mental process.",
+    exp:"This sentence is already correct. Think about can be used in the continuous when it means ‘consider’."
+  },
+  {
+    q:"The shop opens in 9 a.m. at Saturdays.",
+    answers:["The shop opens at 9 a.m. on Saturdays."],
+    hint:"Use one preposition for clock times and another for days.",
+    exp:"Use at for clock times and on for days: at 9 a.m., on Saturdays."
+  },
+  {
+    q:"I'm wanting to change my job in next year.",
+    answers:["I want to change my job next year."],
+    hint:"Want is usually stative. Also check the phrase next year.",
+    exp:"Use want, not am wanting. We say next year without a preposition."
+  },
+  {
+    q:"Mmm, this soup is tasting amazing!",
+    answers:["Mmm, this soup tastes amazing!"],
+    hint:"Here taste describes the quality of the soup.",
+    exp:"When taste describes how food is, it is stative: the soup tastes amazing."
+  },
+  {
+    q:"The chef is tasting the sauce before serving it.",
+    answers:["The chef is tasting the sauce before serving it."],
+    hint:"Is the chef describing the sauce, or actively trying it?",
+    exp:"This sentence is already correct. Taste can be continuous when it means actively trying food."
+  },
+  {
+    q:"My birthday is in the 5th of May, so I'm having a party at the weekend.",
+    answers:["My birthday is on the 5th of May, so I'm having a party at the weekend."],
+    hint:"Which preposition do we use with a specific date?",
+    exp:"Use on with dates: on the 5th of May. “At the weekend” is standard British English."
+  },
+  {
+    q:"He is seeming really tired today.",
+    answers:["He seems really tired today."],
+    hint:"Seem usually describes a state or impression.",
+    exp:"Seem is normally stative, so use the present simple."
+  },
+  {
+    q:"I'm seeing my dentist on Thursday afternoon.",
+    answers:["I'm seeing my dentist on Thursday afternoon."],
+    hint:"See can be continuous when it refers to an arrangement.",
+    exp:"This sentence is already correct. “I'm seeing my dentist” describes a planned appointment."
+  },
+  {
+    q:"We met on 2019, in a cold morning in December.",
+    answers:["We met in 2019, on a cold morning in December."],
+    hint:"Check the prepositions for a year and for a particular morning.",
+    exp:"Use in with years and on with a specific day/morning: in 2019, on a cold morning."
+  },
+  {
+    q:"How much is this dress costing?",
+    answers:["How much does this dress cost?"],
+    hint:"Cost normally describes a state, not an action.",
+    exp:"Cost is normally stative here, so use the present simple question form."
+  },
+  {
+    q:"They're having two kids and live in a small flat.",
+    answers:["They have two kids and live in a small flat."],
+    hint:"Have means possession here.",
+    exp:"Use have for possession: They have two kids."
+  },
+  {
+    q:"I need to finish the report in the end of the week.",
+    answers:["I need to finish the report at the end of the week.","I need to finish the report by the end of the week."],
+    hint:"The fixed phrase is at the end of; by the end of is also possible when you mean a deadline.",
+    exp:"Say at the end of the week for the time point, or by the end of the week for a deadline."
+  },
+  {
+    q:"Do you remember what she said at the night of the party?",
+    answers:["Do you remember what she said on the night of the party?"],
+    hint:"A specific night linked to an event usually takes on.",
+    exp:"Use on the night of the party."
+  }
+];
+
+const KEY="stative-prepositions-corrections-v1";
+let state = load();
+
+function fresh(){
+  return LESSON.map(x=>({value:x.q,checked:false,correct:false,hint:false,answer:false,solvedOnOwn:false}));
+}
+function load(){
+  try{
+    const x=JSON.parse(localStorage.getItem(KEY));
+    if(Array.isArray(x)&&x.length===LESSON.length) return x;
+  }catch(e){}
+  return fresh();
+}
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+function norm(s){
+  return s.toLowerCase().replace(/[’‘]/g,"'").replace(/[“”]/g,'"').replace(/\s+/g," ").replace(/\s+([,.!?])/g,"$1").trim();
+}
+function isCorrect(i){
+  const v=norm(state[i].value);
+  return LESSON[i].answers.some(a=>norm(a)===v);
+}
+function render(){
+  const root=document.getElementById("items");
+  root.innerHTML="";
+  LESSON.forEach((item,i)=>{
+    const s=state[i];
+    const div=document.createElement("div");
+    div.className="item";
+    div.innerHTML=`
+      <div class="row">
+        <div class="num ${s.checked?(s.correct?"ok":"bad"):""}">${i+1}</div>
+        <div>
+          <div class="sentence">${esc(item.q)}</div>
+          <textarea data-i="${i}">${esc(s.value)}</textarea>
+          <div class="buttons">
+            <button class="primary" data-act="check" data-i="${i}">Check</button>
+            <button data-act="hint" data-i="${i}">${s.hint?"Hide hint":"Hint"}</button>
+            <button data-act="answer" data-i="${i}">${s.answer?"Hide answer":"Show answer"}</button>
+          </div>
+        </div>
+      </div>
+      <div class="feedback">
+        ${s.hint?`<div class="hint">${esc(item.hint)}</div>`:""}
+        ${s.checked?`<div class="msg ${s.correct?"ok":"bad"}">${s.correct?"Correct!":"This sentence still has a mistake. Edit it in the box, then check again."}</div>`:""}
+        ${s.answer?`<div class="answer"><strong>${esc(item.answers[0])}</strong><p>${esc(item.exp)}</p></div>`:""}
+      </div>`;
+    root.appendChild(div);
+  });
+  root.querySelectorAll("textarea").forEach(el=>{
+    el.addEventListener("input",e=>{
+      const i=+e.target.dataset.i; state[i].value=e.target.value; state[i].checked=false; state[i].correct=false; save(); updateProgress();
+    });
+  });
+  root.querySelectorAll("button[data-act]").forEach(b=>b.addEventListener("click",handle));
+  updateProgress();
+}
+function handle(e){
+  const i=+e.currentTarget.dataset.i, act=e.currentTarget.dataset.act;
+  if(act==="hint") state[i].hint=!state[i].hint;
+  if(act==="answer") state[i].answer=!state[i].answer;
+  if(act==="check"){
+    state[i].checked=true; state[i].correct=isCorrect(i);
+    if(state[i].correct && !state[i].answer) state[i].solvedOnOwn=true;
+  }
+  save(); render();
+}
+function updateProgress(){
+  const own=state.filter(x=>x.solvedOnOwn).length;
+  const shown=state.filter(x=>x.answer).length;
+  document.getElementById("progressText").textContent = own+" of 18 fixed on your own"+(shown?", "+shown+" answer"+(shown===1?"":"s")+" shown":"");
+  document.getElementById("barFill").style.width=(own/18*100)+"%";
+}
+function esc(s){return s.replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+
+document.getElementById("checkAll").onclick=()=>{
+  state.forEach((s,i)=>{s.checked=true;s.correct=isCorrect(i);if(s.correct&&!s.answer)s.solvedOnOwn=true});
+  save();render();
+};
+document.getElementById("showAll").onclick=()=>{
+  const shouldShow=!state.every(x=>x.answer);
+  state.forEach(x=>x.answer=shouldShow);
+  save();render();
+};
+document.getElementById("restart").onclick=()=>{
+  if(confirm("Start again and erase saved progress?")){state=fresh();save();render();window.scrollTo({top:0,behavior:"smooth"})}
+};
+render();
+</script>
+</body>
+</html>
