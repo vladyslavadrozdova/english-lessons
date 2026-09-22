@@ -6,41 +6,41 @@
 <title>Correct the mistakes: stative verbs and at, in, on</title>
 <style>
   :root{
-    --bg:#17141b; --panel:#1d1821; --panel2:#261f2b; --text:#f4edf8; --muted:#b6adbd;
-    --line:#3b3242; --accent:#cda7e4; --accent2:#ef77ad; --ok:#8ed6a8; --bad:#ff8eb7;
+    --bg:#fffdf9; --panel:#ffffff; --panel2:#f6f2ea; --text:#2f342f; --muted:#7d827c;
+    --line:#e4ded3; --accent:#bfd8c4; --accent2:#8e6fb1; --ok:#4f8a63; --bad:#bf6a76;
   }
   *{box-sizing:border-box}
-  body{margin:0;background:#f2edf5;color:var(--text);font-family:Georgia,"Times New Roman",serif}
-  .wrap{max-width:1040px;margin:0 auto;background:var(--bg);min-height:100vh;padding:42px 42px 64px}
-  h1{font-size:clamp(34px,5vw,54px);line-height:1.02;margin:0 0 14px}
-  .subtitle{color:var(--muted);font-size:clamp(18px,2.3vw,26px);margin-bottom:32px}
-  .intro{font-size:20px;line-height:1.5;margin-bottom:34px}
-  .progressText{color:var(--muted);font-size:20px;margin-bottom:12px}
+  body{margin:0;background:#f4f1ea;color:var(--text);font-family:Georgia,"Times New Roman",serif}
+  .wrap{max-width:1120px;margin:24px auto;background:var(--bg);min-height:100vh;padding:34px 38px 54px;border-radius:22px;box-shadow:0 8px 30px rgba(70,60,50,.08)}
+  h1{font-size:clamp(28px,3.6vw,44px);line-height:1.08;margin:0 0 10px}
+  .subtitle{color:var(--muted);font-size:clamp(16px,1.8vw,21px);margin-bottom:24px}
+  .intro{font-size:17px;line-height:1.5;margin-bottom:26px}
+  .progressText{color:var(--muted);font-size:16px;margin-bottom:10px}
   .bar{height:7px;background:#eadff0;border-radius:99px;overflow:hidden;margin-bottom:22px}
   .bar>div{height:100%;width:0;background:var(--accent2);transition:.25s}
-  .item{padding:28px 0 34px;border-top:1px solid var(--line)}
-  .row{display:grid;grid-template-columns:58px 1fr;gap:16px;align-items:start}
-  .num{width:46px;height:46px;border:1px solid var(--line);border-radius:50%;display:grid;place-items:center;color:var(--muted);font-size:19px;background:#fff}
+  .item{padding:22px 0 26px;border-top:1px solid var(--line)}
+  .row{display:grid;grid-template-columns:46px 1fr;gap:14px;align-items:start}
+  .num{width:36px;height:36px;border:1px solid var(--line);border-radius:50%;display:grid;place-items:center;color:var(--muted);font-size:15px;background:#fff}
   .num.ok{background:#eaf7ef;color:var(--ok);border-color:#b9dfc7}
   .num.bad{background:#fff0f4;color:var(--bad);border-color:#efbfd0}
-  .sentence{font-size:24px;line-height:1.4;margin:0 0 16px}
-  textarea{width:100%;min-height:72px;resize:vertical;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--text);font:inherit;font-size:20px;padding:15px 17px;outline:none}
+  .sentence{font-size:19px;line-height:1.4;margin:0 0 12px}
+  textarea{width:100%;min-height:58px;resize:vertical;border:1px solid var(--line);border-radius:10px;background:var(--panel2);color:var(--text);font:inherit;font-size:16px;padding:12px 14px;outline:none}
   textarea:focus{border-color:var(--accent)}
-  .buttons{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px}
-  button{border:1px solid var(--line);background:#fff;color:var(--text);font:inherit;font-size:18px;border-radius:999px;padding:10px 20px;cursor:pointer}
-  button.primary{background:var(--accent);color:#2b2230;border-color:transparent}
+  .buttons{display:flex;gap:9px;flex-wrap:wrap;margin-top:10px}
+  button{border:1px solid var(--line);background:#fff;color:var(--text);font:inherit;font-size:15px;border-radius:999px;padding:8px 16px;cursor:pointer}
+  button.primary{background:var(--accent);color:#243128;border-color:transparent}
   button:hover{filter:brightness(1.06)}
-  .feedback{margin:16px 0 0 74px}
-  .hint{color:var(--muted);font-style:italic;font-size:18px;line-height:1.5;margin:10px 0}
-  .msg{font-size:18px;line-height:1.5;margin:10px 0}
+  .feedback{margin:12px 0 0 60px}
+  .hint{color:var(--muted);font-style:italic;font-size:15px;line-height:1.5;margin:8px 0}
+  .msg{font-size:15px;line-height:1.5;margin:8px 0}
   .msg.ok{color:var(--ok)} .msg.bad{color:var(--bad)}
   .answer{border-left:4px solid var(--accent2);padding:10px 0 10px 20px;margin-top:14px}
-  .answer strong{display:block;color:var(--accent2);font-size:20px;margin-bottom:6px}
-  .answer p{font-size:18px;line-height:1.5;margin:6px 0}
+  .answer strong{display:block;color:var(--accent2);font-size:17px;margin-bottom:5px}
+  .answer p{font-size:15px;line-height:1.5;margin:5px 0}
   .controls{display:flex;gap:12px;flex-wrap:wrap;padding:26px 0;border-top:1px solid var(--line)}
   @media(max-width:640px){
-    .wrap{padding:28px 18px 50px}.row{grid-template-columns:48px 1fr;gap:12px}.num{width:44px;height:44px;font-size:20px}
-    .sentence{font-size:24px}.feedback{margin-left:60px}textarea{font-size:20px}.intro,.progressText{font-size:20px}
+    .wrap{margin:0;padding:22px 14px 40px;border-radius:0}.row{grid-template-columns:36px 1fr;gap:9px}.num{width:30px;height:30px;font-size:13px}
+    h1{font-size:30px}.subtitle{font-size:16px}.sentence{font-size:17px}.feedback{margin-left:45px}textarea{font-size:15px;min-height:54px}.intro,.progressText{font-size:15px}
   }
 </style>
 </head>
