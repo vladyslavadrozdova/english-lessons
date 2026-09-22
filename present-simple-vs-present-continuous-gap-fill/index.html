@@ -136,11 +136,27 @@ h1{
 }
 .blank.ok{
   border-bottom-color:#65a579;
-  background:#f7fff9;
+  background:var(--greenBg);
+  color:var(--green);
+  font-weight:700;
 }
 .blank.bad{
   border-bottom-color:#d36c82;
-  background:#fff7f9;
+  background:var(--redBg);
+  color:var(--red);
+  font-weight:700;
+}
+.correction{
+  display:inline-block;
+  margin:0 7px 0 1px;
+  padding:2px 7px 3px;
+  border-radius:6px;
+  background:var(--greenBg);
+  color:var(--green);
+  font-size:16px;
+  font-weight:700;
+  line-height:1.35;
+  vertical-align:baseline;
 }
 .actions{
   display:flex;
@@ -218,7 +234,6 @@ button:hover{filter:brightness(.98)}
 
   <div class="bottom-actions">
     <button class="primary" id="checkAll">Check all</button>
-    <button id="showAll">Show all answers</button>
     <button id="restart">Start again</button>
   </div>
 </main>
@@ -336,7 +351,7 @@ let state=load();
 
 function blankCount(item){return item.p.filter(x=>x && typeof x==="object" && "a" in x).length}
 function fresh(){
-  return DATA.map(item=>({values:Array(blankCount(item)).fill(""),checked:false,correct:false,shown:false}));
+  return DATA.map(item=>({values:Array(blankCount(item)).fill(""),checked:false,correct:false}));
 }
 function load(){
   try{
@@ -369,6 +384,8 @@ function renderPart(part,i,blankIndex){
   if(part.c){
     const e=document.createElement("em"); e.className="cue"; e.textContent=part.c; return e;
   }
+
+  const wrap=document.createElement("span");
   const input=document.createElement("input");
   input.className="blank";
   input.autocomplete="off";
@@ -376,20 +393,33 @@ function renderPart(part,i,blankIndex){
   input.dataset.i=i; input.dataset.b=blankIndex;
   input.value=state[i].values[blankIndex]||"";
   input.style.width=widthFor(part.a)+"px";
+
   if(state[i].checked){
-    input.classList.add(isFieldCorrect(part,input.value)?"ok":"bad");
+    const ok=isFieldCorrect(part,input.value);
+    input.classList.add(ok?"ok":"bad");
+
+    if(!ok){
+      const correction=document.createElement("span");
+      correction.className="correction";
+      correction.textContent="✓ "+part.a;
+      wrap.append(input,correction);
+    }else{
+      wrap.appendChild(input);
+    }
+  }else{
+    wrap.appendChild(input);
   }
+
   input.addEventListener("input",e=>{
     const ii=+e.target.dataset.i, bb=+e.target.dataset.b;
     state[ii].values[bb]=e.target.value;
     state[ii].checked=false; state[ii].correct=false;
-    save(); updateProgress();
-    e.target.classList.remove("ok","bad");
+    save(); render();
   });
   input.addEventListener("keydown",e=>{
     if(e.key==="Enter"){e.preventDefault();checkItem(i)}
   });
-  return input;
+  return wrap;
 }
 function render(){
   const list=document.getElementById("list");
@@ -412,20 +442,15 @@ function render(){
     const actions=document.createElement("div"); actions.className="actions";
     const check=document.createElement("button"); check.className="primary"; check.textContent="Check";
     check.onclick=()=>checkItem(i);
-    const show=document.createElement("button"); show.textContent=state[i].shown?"Hide answer":"Show answer";
-    show.onclick=()=>{state[i].shown=!state[i].shown;save();render()};
-    actions.append(check,show);
+    actions.append(check);
     body.append(sentence,actions);
     if(state[i].checked){
       const fb=document.createElement("div");
       fb.className="feedback "+(state[i].correct?"ok":"bad");
-      fb.textContent=state[i].correct?"Correct ✓":"Not quite — check the highlighted gap(s).";
+      fb.textContent=state[i].correct
+        ?"Correct ✓"
+        :"Red = your mistake. Green = the correct answer.";
       body.appendChild(fb);
-    }
-    if(state[i].shown){
-      const ans=document.createElement("div"); ans.className="answer";
-      ans.innerHTML="<b>Answer:</b> "+escapeHtml(item.answer);
-      body.appendChild(ans);
     }
     ex.append(n,body); list.appendChild(ex);
   });
@@ -446,10 +471,6 @@ document.getElementById("checkAll").onclick=()=>{
     state[i].correct=specs.every((sp,j)=>isFieldCorrect(sp,state[i].values[j]));
   });
   save();render();
-};
-document.getElementById("showAll").onclick=()=>{
-  const show=!state.every(x=>x.shown);
-  state.forEach(x=>x.shown=show);save();render();
 };
 document.getElementById("restart").onclick=()=>{
   if(confirm("Start again and erase saved answers?")){
