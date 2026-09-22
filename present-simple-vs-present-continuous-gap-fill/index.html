@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Present Simple vs Present Continuous</title>
+<style>
+:root{
+  --bg:#f7f4f9;
+  --text:#2f2636;
+  --muted:#766c7d;
+  --line:#e3dbe7;
+  --purple:#512760;
+  --purple2:#6c3a7d;
+  --pink:#ef6e9b;
+  --pinkBg:#fde7ef;
+  --green:#287548;
+  --greenBg:#eaf6ee;
+  --red:#af4058;
+  --redBg:#fff0f3;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Georgia,"Times New Roman",serif;
+}
+.page{
+  width:min(900px,100%);
+  margin:0 auto;
+  padding:26px 28px 58px;
+}
+h1{
+  font-size:clamp(42px,7vw,68px);
+  line-height:.93;
+  margin:0 0 14px;
+  letter-spacing:-1.5px;
+}
+.subtitle{
+  color:var(--muted);
+  font-size:21px;
+  font-weight:600;
+  margin-bottom:30px;
+}
+.intro{
+  font-size:21px;
+  line-height:1.5;
+  max-width:790px;
+  margin-bottom:44px;
+}
+.tag{
+  display:inline-block;
+  color:#c74677;
+  background:var(--pinkBg);
+  padding:0 7px 2px;
+  border-radius:5px;
+}
+.progress-label{
+  color:var(--muted);
+  font-weight:700;
+  font-size:19px;
+  margin-bottom:10px;
+}
+.progress{
+  height:5px;
+  background:#e5dce8;
+  border-radius:99px;
+  overflow:hidden;
+  margin-bottom:18px;
+}
+.progress > div{
+  height:100%;
+  width:0;
+  background:var(--purple);
+  transition:width .25s ease;
+}
+.exercise{
+  border-top:1px solid var(--line);
+  padding:30px 0 34px;
+  display:grid;
+  grid-template-columns:44px 1fr;
+  gap:14px;
+}
+.num{
+  width:36px;height:36px;
+  border:2px solid var(--line);
+  border-radius:50%;
+  display:grid;place-items:center;
+  color:var(--muted);
+  font-weight:700;
+  font-size:16px;
+  margin-top:1px;
+}
+.num.correct{
+  color:var(--green);
+  border-color:#b7ddc4;
+  background:var(--greenBg);
+}
+.num.wrong{
+  color:var(--red);
+  border-color:#efb8c4;
+  background:var(--redBg);
+}
+.sentence{
+  font-size:20px;
+  line-height:1.95;
+  font-weight:600;
+}
+.cue{
+  color:var(--muted);
+  font-style:italic;
+  font-weight:600;
+}
+.blank{
+  display:inline-block;
+  vertical-align:baseline;
+  min-width:58px;
+  height:35px;
+  margin:0 4px;
+  padding:3px 7px 4px;
+  border:0;
+  border-bottom:2px solid #ded5e2;
+  background:#fff;
+  color:var(--text);
+  font:inherit;
+  font-size:18px;
+  line-height:1;
+  outline:none;
+  border-radius:2px 2px 0 0;
+}
+.blank:focus{
+  border-bottom-color:var(--purple2);
+  box-shadow:0 2px 0 rgba(81,39,96,.08);
+}
+.blank.ok{
+  border-bottom-color:#65a579;
+  background:#f7fff9;
+}
+.blank.bad{
+  border-bottom-color:#d36c82;
+  background:#fff7f9;
+}
+.actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:9px;
+  margin-top:9px;
+}
+button{
+  appearance:none;
+  border:1.5px solid var(--line);
+  background:transparent;
+  color:var(--text);
+  border-radius:999px;
+  padding:9px 20px 10px;
+  font:700 17px Georgia,"Times New Roman",serif;
+  cursor:pointer;
+}
+button.primary{
+  background:var(--purple);
+  color:#fff;
+  border-color:var(--purple);
+}
+button:hover{filter:brightness(.98)}
+.feedback{
+  margin-top:12px;
+  font-size:16px;
+  line-height:1.45;
+  font-weight:700;
+}
+.feedback.ok{color:var(--green)}
+.feedback.bad{color:var(--red)}
+.answer{
+  margin-top:12px;
+  padding:11px 14px;
+  background:#fff;
+  border-left:4px solid var(--purple2);
+  border-radius:0 8px 8px 0;
+  font-size:17px;
+  line-height:1.45;
+}
+.bottom-actions{
+  border-top:1px solid var(--line);
+  padding-top:26px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+}
+@media(max-width:620px){
+  .page{padding:20px 16px 42px}
+  h1{font-size:42px}
+  .subtitle{font-size:18px}
+  .intro{font-size:18px;margin-bottom:34px}
+  .sentence{font-size:18px;line-height:1.9}
+  .exercise{grid-template-columns:38px 1fr;padding:24px 0 28px;gap:10px}
+  .num{width:32px;height:32px;font-size:14px}
+  .blank{font-size:17px;height:32px;min-width:52px}
+  button{font-size:16px;padding:8px 17px 9px}
+}
+</style>
+</head>
+<body>
+<main class="page">
+  <h1>Present Simple vs Present<br>Continuous</h1>
+  <div class="subtitle">+ Stative verbs &amp; prepositions of time: at, in, on</div>
+  <div class="intro">
+    Fill in each gap: use the correct form of the verb in brackets, or the correct preposition
+    (<span class="tag">at</span> / <span class="tag">in</span> / <span class="tag">on</span>).
+    Press <b>Check</b> under each sentence, or press Enter in any box.
+  </div>
+
+  <div class="progress-label" id="progressLabel">0 of 26 sentences correct</div>
+  <div class="progress"><div id="progressBar"></div></div>
+
+  <section id="list"></section>
+
+  <div class="bottom-actions">
+    <button class="primary" id="checkAll">Check all</button>
+    <button id="showAll">Show all answers</button>
+    <button id="restart">Start again</button>
+  </div>
+</main>
+
+<script>
+const DATA = [
+  {
+    p:["Anna usually ",{a:"works"} ,{c:"(work)"}," at a hospital, but right now she ",{a:"is helping"},{c:"(help)"}," at a different clinic."],
+    answer:"Anna usually works at a hospital, but right now she is helping at a different clinic."
+  },
+  {
+    p:["Look! Tom ",{a:"is waiting"},{c:"(wait)"}," for the bus ",{a:"at"}," the moment."],
+    answer:"Look! Tom is waiting for the bus at the moment."
+  },
+  {
+    p:["Elena starts work ",{a:"at"}," 8 o'clock ",{a:"in"}," the morning."],
+    answer:"Elena starts work at 8 o'clock in the morning."
+  },
+  {
+    p:[{a:"on"}," Mondays, she ",{a:"teaches"},{c:"(teach)"}," a photography class."],
+    answer:"On Mondays, she teaches a photography class."
+  },
+  {
+    p:["What ",{a:"are"}," you ",{a:"doing"},{c:"(do)"}," ",{a:"at"}," the moment?"],
+    answer:"What are you doing at the moment?"
+  },
+  {
+    p:["We ",{a:"visit"},{c:"(visit)"}," our grandparents every Sunday, but this week we ",{a:"are going"},{c:"(go)"}," ",{a:"on"}," Saturday instead."],
+    answer:"We visit our grandparents every Sunday, but this week we are going on Saturday instead."
+  },
+  {
+    p:["Her birthday is ",{a:"in"}," September, ",{a:"on"}," the 5th."],
+    answer:"Her birthday is in September, on the 5th."
+  },
+  {
+    p:["Right now, the children ",{a:"are playing"},{c:"(play)"}," ",{a:"in"}," the garden."],
+    answer:"Right now, the children are playing in the garden."
+  },
+  {
+    p:["Maria ",{a:"doesn't work",alts:["does not work"]},{c:"(not / work)"}," ",{a:"on"}," Sundays; she stays home with her family."],
+    answer:"Maria doesn't work on Sundays; she stays home with her family."
+  },
+  {
+    p:["She ",{a:"is having",alts:["has"]},{c:"(have)"}," a meeting ",{a:"at"}," 3 o'clock today."],
+    answer:"She is having a meeting at 3 o'clock today."
+  },
+  {
+    p:[{a:"at",alts:["on"]}," the weekend, they usually relax, but this weekend they ",{a:"are painting"},{c:"(paint)"}," the kitchen."],
+    answer:"At the weekend, they usually relax, but this weekend they are painting the kitchen."
+  },
+  {
+    p:["I'll see you ",{a:"on"}," Friday afternoon — I ",{a:"know"},{c:"(know)"}," you'll be busy in the morning."],
+    answer:"I'll see you on Friday afternoon — I know you'll be busy in the morning."
+  },
+  {
+    p:["I ",{a:"don't understand",alts:["do not understand"]},{c:"(not / understand)"}," this exercise ",{a:"at"}," the moment — can you help me?"],
+    answer:"I don't understand this exercise at the moment — can you help me?"
+  },
+  {
+    p:["This soup ",{a:"tastes"},{c:"(taste)"}," amazing — perfect for lunch ",{a:"at"}," noon."],
+    answer:"This soup tastes amazing — perfect for lunch at noon."
+  },
+  {
+    p:["He ",{a:"thinks"},{c:"(think)"}," about moving abroad ",{a:"in"}," the future. (opinion, not process)"],
+    answer:"He thinks about moving abroad in the future."
+  },
+  {
+    p:["Sshh, I ",{a:"am thinking",alts:["'m thinking","’m thinking"]},{c:"(think)"}," — don't interrupt me! My exam starts ",{a:"at"}," 9 o'clock."],
+    answer:"Sshh, I am thinking — don't interrupt me! My exam starts at 9 o'clock."
+  },
+  {
+    p:["My parents ",{a:"own"},{c:"(own)"}," a small house ",{a:"in"}," the countryside."],
+    answer:"My parents own a small house in the countryside."
+  },
+  {
+    p:["She ",{a:"doesn't believe",alts:["does not believe"]},{c:"(not / believe)"}," his story about the accident ",{a:"at"}," the moment."],
+    answer:"She doesn't believe his story about the accident at the moment."
+  },
+  {
+    p:[{a:"in"}," December, we usually visit family, but this year we ",{a:"are staying"},{c:"(stay)"}," home instead."],
+    answer:"In December, we usually visit family, but this year we are staying home instead."
+  },
+  {
+    p:["This bag ",{a:"belongs"},{c:"(belong)"}," to my sister — she bought it ",{a:"in"}," 2020."],
+    answer:"This bag belongs to my sister — she bought it in 2020."
+  },
+  {
+    p:["How much ",{a:"does"}," this jacket ",{a:"cost"},{c:"(cost)"},"? The sale ends ",{a:"on"}," Sunday."],
+    answer:"How much does this jacket cost? The sale ends on Sunday."
+  },
+  {
+    p:[{a:"on"}," Fridays, Elena ",{a:"meets"},{c:"(meet)"}," clients, but today she ",{a:"is working"},{c:"(work)"}," from home."],
+    answer:"On Fridays, Elena meets clients, but today she is working from home."
+  },
+  {
+    p:["He ",{a:"seems"},{c:"(seem)"}," tired today — he probably ",{a:"isn't sleeping",alts:["is not sleeping","doesn't sleep","does not sleep"]},{c:"(not / sleep)"}," well ",{a:"at"}," night these days."],
+    answer:"He seems tired today — he probably isn't sleeping well at night these days."
+  },
+  {
+    p:["We ",{a:"need"},{c:"(need)"}," to finish the project ",{a:"at",alts:["by"]}," the end of the month."],
+    answer:"We need to finish the project at the end of the month."
+  },
+  {
+    p:["This perfume ",{a:"smells"},{c:"(smell)"}," wonderful — I always wear it ",{a:"in"}," the evening."],
+    answer:"This perfume smells wonderful — I always wear it in the evening."
+  },
+  {
+    p:["The chef ",{a:"is smelling",alts:["smells"]},{c:"(smell)"}," the sauce before dinner starts ",{a:"at"}," 8 o'clock."],
+    answer:"The chef is smelling the sauce before dinner starts at 8 o'clock."
+  }
+];
+
+const KEY="present-simple-continuous-26-v1";
+let state=load();
+
+function blankCount(item){return item.p.filter(x=>x && typeof x==="object" && "a" in x).length}
+function fresh(){
+  return DATA.map(item=>({values:Array(blankCount(item)).fill(""),checked:false,correct:false,shown:false}));
+}
+function load(){
+  try{
+    const s=JSON.parse(localStorage.getItem(KEY));
+    if(Array.isArray(s)&&s.length===DATA.length) return s;
+  }catch(e){}
+  return fresh();
+}
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+function norm(v){
+  return String(v).toLowerCase().replace(/[’‘]/g,"'").replace(/\s+/g," ").trim().replace(/[.?!,;:]$/,"");
+}
+function isFieldCorrect(spec,val){
+  const accepted=[spec.a].concat(spec.alts||[]).map(norm);
+  return accepted.includes(norm(val));
+}
+function checkItem(i){
+  const specs=DATA[i].p.filter(x=>x && typeof x==="object" && "a" in x);
+  const s=state[i];
+  s.checked=true;
+  s.correct=specs.every((sp,j)=>isFieldCorrect(sp,s.values[j]));
+  save();render();
+}
+function widthFor(answer){
+  const n=Math.max(2,answer.length);
+  return Math.min(170,Math.max(58,n*9+18));
+}
+function renderPart(part,i,blankIndex){
+  if(typeof part==="string") return document.createTextNode(part);
+  if(part.c){
+    const e=document.createElement("em"); e.className="cue"; e.textContent=part.c; return e;
+  }
+  const input=document.createElement("input");
+  input.className="blank";
+  input.autocomplete="off";
+  input.spellcheck=false;
+  input.dataset.i=i; input.dataset.b=blankIndex;
+  input.value=state[i].values[blankIndex]||"";
+  input.style.width=widthFor(part.a)+"px";
+  if(state[i].checked){
+    input.classList.add(isFieldCorrect(part,input.value)?"ok":"bad");
+  }
+  input.addEventListener("input",e=>{
+    const ii=+e.target.dataset.i, bb=+e.target.dataset.b;
+    state[ii].values[bb]=e.target.value;
+    state[ii].checked=false; state[ii].correct=false;
+    save(); updateProgress();
+    e.target.classList.remove("ok","bad");
+  });
+  input.addEventListener("keydown",e=>{
+    if(e.key==="Enter"){e.preventDefault();checkItem(i)}
+  });
+  return input;
+}
+function render(){
+  const list=document.getElementById("list");
+  list.innerHTML="";
+  DATA.forEach((item,i)=>{
+    const ex=document.createElement("article"); ex.className="exercise";
+    const n=document.createElement("div");
+    n.className="num"+(state[i].checked?(state[i].correct?" correct":" wrong"):"");
+    n.textContent=i+1;
+    const body=document.createElement("div");
+    const sentence=document.createElement("div"); sentence.className="sentence";
+    let b=0;
+    item.p.forEach(part=>{
+      if(part && typeof part==="object" && "a" in part){
+        sentence.appendChild(renderPart(part,i,b++));
+      }else{
+        sentence.appendChild(renderPart(part,i,b));
+      }
+    });
+    const actions=document.createElement("div"); actions.className="actions";
+    const check=document.createElement("button"); check.className="primary"; check.textContent="Check";
+    check.onclick=()=>checkItem(i);
+    const show=document.createElement("button"); show.textContent=state[i].shown?"Hide answer":"Show answer";
+    show.onclick=()=>{state[i].shown=!state[i].shown;save();render()};
+    actions.append(check,show);
+    body.append(sentence,actions);
+    if(state[i].checked){
+      const fb=document.createElement("div");
+      fb.className="feedback "+(state[i].correct?"ok":"bad");
+      fb.textContent=state[i].correct?"Correct ✓":"Not quite — check the highlighted gap(s).";
+      body.appendChild(fb);
+    }
+    if(state[i].shown){
+      const ans=document.createElement("div"); ans.className="answer";
+      ans.innerHTML="<b>Answer:</b> "+escapeHtml(item.answer);
+      body.appendChild(ans);
+    }
+    ex.append(n,body); list.appendChild(ex);
+  });
+  updateProgress();
+}
+function updateProgress(){
+  const correct=state.filter(x=>x.correct).length;
+  document.getElementById("progressLabel").textContent=correct+" of 26 sentences correct";
+  document.getElementById("progressBar").style.width=(correct/26*100)+"%";
+}
+function escapeHtml(s){
+  return s.replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+}
+document.getElementById("checkAll").onclick=()=>{
+  DATA.forEach((item,i)=>{
+    const specs=item.p.filter(x=>x && typeof x==="object" && "a" in x);
+    state[i].checked=true;
+    state[i].correct=specs.every((sp,j)=>isFieldCorrect(sp,state[i].values[j]));
+  });
+  save();render();
+};
+document.getElementById("showAll").onclick=()=>{
+  const show=!state.every(x=>x.shown);
+  state.forEach(x=>x.shown=show);save();render();
+};
+document.getElementById("restart").onclick=()=>{
+  if(confirm("Start again and erase saved answers?")){
+    state=fresh();save();render();window.scrollTo({top:0,behavior:"smooth"});
+  }
+};
+render();
+</script>
+</body>
+</html>
