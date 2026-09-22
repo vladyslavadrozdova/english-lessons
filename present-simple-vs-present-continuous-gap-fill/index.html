@@ -413,8 +413,13 @@ function renderPart(part,i,blankIndex){
   input.addEventListener("input",e=>{
     const ii=+e.target.dataset.i, bb=+e.target.dataset.b;
     state[ii].values[bb]=e.target.value;
-    state[ii].checked=false; state[ii].correct=false;
-    save(); render();
+    state[ii].checked=false;
+    state[ii].correct=false;
+    e.target.classList.remove("ok","bad");
+    const correction=e.target.parentElement.querySelector(".correction");
+    if(correction) correction.remove();
+    save();
+    updateProgress();
   });
   input.addEventListener("keydown",e=>{
     if(e.key==="Enter"){e.preventDefault();checkItem(i)}
